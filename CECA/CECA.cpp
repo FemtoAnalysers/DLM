@@ -1,17 +1,17 @@
 
-#include "CATSconstants.h"
 #include "CECA.h"
-#include "TREPNI.h"
+#include "CATSconstants.h"
 #include "CATStools.h"
-#include "DLM_Random.h"
-#include "DLM_Histo.h"
-#include "DLM_Source.h"
 #include "DLM_CppTools.h"
+#include "DLM_Histo.h"
 #include "DLM_MathFunctions.h"
+#include "DLM_Random.h"
+#include "DLM_Source.h"
+#include "TREPNI.h"
 
 #include "omp.h"
-#include <unistd.h>
 #include <thread>
+#include <unistd.h>
 
 CecaParticle::CecaParticle() {
     cats = new CatsParticle();
@@ -71,7 +71,7 @@ bool CecaParticle::IsUseful() const {
     return false;
 } // is of the required type
 bool CecaParticle::IsUsefulPrimordial() const { return Origin == 1; } //+primordial
-bool CecaParticle::IsUsefulProduct() const { return Origin == 2; } //+decay product
+bool CecaParticle::IsUsefulProduct() const { return Origin == 2; }    //+decay product
 bool CecaParticle::WithinAcceptance() const {
     if (cats->GetPt() < trepni->AcceptanceMin_pT())
         return false;
