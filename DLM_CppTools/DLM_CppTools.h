@@ -2,74 +2,78 @@
 #ifndef DLM_CppToolsH
 #define DLM_CppToolsH
 
-#include <sys/time.h>
 #include <iostream>
 #include <string.h>
+#include <sys/time.h>
 #include <vector>
 
 extern long DLM_CppHelp_TimeS;
 extern long DLM_CppHelp_TimeUS;
 
-//check if a string correponds to a number
-bool isNumber(const char* str);
-bool isInteger(const char* str);
+// check if a string correponds to a number
+bool isNumber(const char *str);
+bool isInteger(const char *str);
 
-std::vector<std::string> ParseString(const std::string& text, const std::string& delim);
-std::vector<std::string> ParseString(const std::string& text, const std::vector<std::string>& delim);
+std::vector<std::string> ParseString(const std::string &text, const std::string &delim);
+std::vector<std::string> ParseString(const std::string &text, const std::vector<std::string> &delim);
 
-template <typename VT>
-bool ElementInVector(std::vector<VT>& vec, const VT& elem){
-  for(VT& el : vec){
-    if(el==elem) return true;
-  }
-  return false;
+template <typename VT> bool ElementInVector(std::vector<VT> &vec, const VT &elem) {
+    for (VT &el : vec) {
+        if (el == elem)
+            return true;
+    }
+    return false;
 }
 
 int ipow(int base, unsigned char exp);
 unsigned uipow(unsigned base, unsigned char exp);
 
-void ShowTime(long long T, char * str, short show=0, bool compact=true, short NumUnits=7);
+void ShowTime(long long T, char *str, short show = 0, bool compact = true, short NumUnits = 7);
 
-//0 if file does not exist
-//1 if file exists and is not opened
+// 0 if file does not exist
+// 1 if file exists and is not opened
 //-1 if the file exists and is opened
-//the latter does not always function, it has to be opened by a process in a linux terminal
-//it was proven to always work with .root files though!
-int file_status(const char* name);
+// the latter does not always function, it has to be opened by a process in a linux terminal
+// it was proven to always work with .root files though!
+int file_status(const char *name);
 
-class DLM_Timer{
+class DLM_Timer {
 
-protected:
+  protected:
     struct timeval start;
     struct timeval end;
-public:
+
+  public:
     DLM_Timer();
     ~DLM_Timer();
     void Start();
     long long Stop();
 };
 
-template <typename TYPE>
-void ResizeArray(TYPE*& array, const unsigned& OldSize=0, const unsigned& NewSize=0){
-  unsigned CopyRange = NewSize>OldSize?OldSize:NewSize;
-  if(!array) CopyRange=0;
-  if(NewSize==0){
-    if(array){
-      delete [] array;
-      array = NULL;
+template <typename TYPE> void ResizeArray(TYPE *&array, const unsigned &OldSize = 0, const unsigned &NewSize = 0) {
+    unsigned CopyRange = NewSize > OldSize ? OldSize : NewSize;
+    if (!array)
+        CopyRange = 0;
+    if (NewSize == 0) {
+        if (array) {
+            delete[] array;
+            array = NULL;
+        }
+        return;
     }
-    return;
-  }
-  TYPE* temp = CopyRange ? new TYPE[CopyRange] : NULL;
-  for(unsigned uEl=0; uEl<CopyRange; uEl++){
-    temp[uEl] = array[uEl];
-  }
-  delete [] array;
-  array = new TYPE[NewSize];
-  for(unsigned uEl=0; uEl<CopyRange; uEl++){
-    array[uEl] = temp[uEl];
-  }
-  if(temp){delete[]temp;temp=NULL;}
+    TYPE *temp = CopyRange ? new TYPE[CopyRange] : NULL;
+    for (unsigned uEl = 0; uEl < CopyRange; uEl++) {
+        temp[uEl] = array[uEl];
+    }
+    delete[] array;
+    array = new TYPE[NewSize];
+    for (unsigned uEl = 0; uEl < CopyRange; uEl++) {
+        array[uEl] = temp[uEl];
+    }
+    if (temp) {
+        delete[] temp;
+        temp = NULL;
+    }
 }
 
 #endif

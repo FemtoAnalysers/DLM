@@ -5,10 +5,10 @@
 #include <fstream>
 #include <vector>
 
-void SetAnalysisFolderPath(char* folder_path);
-void SetOutputFolderPath(char* folder_path);
+void SetAnalysisFolderPath(char *folder_path);
+void SetOutputFolderPath(char *folder_path);
 
-void MainAnalysisFunction(char* Description, std::vector<int> fit_types, int mt_bin, int NumIter, bool Bootstrap=true, bool DataVar=true, bool FitVar=true, int SEED=0);
-
+void MainAnalysisFunction(char *Description, std::vector<int> fit_types, int mt_bin, int NumIter, bool Bootstrap = true,
+                          bool DataVar = true, bool FitVar = true, int SEED = 0);
 
 #endif

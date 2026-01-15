@@ -2,59 +2,60 @@
 #define DLM_CK_H
 
 #include "DLM_Histo.h"
-//template <class Type> class DLM_Histo;
+// template <class Type> class DLM_Histo;
 
 class CATS;
 
-class DLM_Ck : public DLM_Histo<double>{
+class DLM_Ck : public DLM_Histo<double> {
 
-public:
-    //this thing creates a copy of 'other' in terms of bins and settings,
-    //however if FULL==false the new DLM_Ck will be SIMPLE HISTO, with no attatchment to cats or functions objects!!!
-    DLM_Ck(const DLM_Ck& other, bool FULL);
-    DLM_Ck(const DLM_Histo<double>& other);
-    DLM_Ck(const unsigned numbins,const double& kmin, const double& kmax);
-    DLM_Ck(const unsigned& nSourcePar, const unsigned& nPotPar, CATS& cat);
-    DLM_Ck(const unsigned& nSourcePar, const unsigned& nPotPar, CATS& cat, const unsigned& numbin, const double* bins);
-    DLM_Ck(const unsigned& nSourcePar, const unsigned& nPotPar, CATS& cat, const unsigned& numbin, const double& minMom, const double& maxMom);
-    DLM_Ck(const unsigned& nSourcePar, const unsigned& nPotPar,
-           const unsigned& numbin, const double* bins, double (*CorrFun)(const double&, const double*, const double*));
-    DLM_Ck(const unsigned& nSourcePar, const unsigned& nPotPar,
-           const unsigned& numbin, const double& minMom, const double& maxMom, double (*CorrFun)(const double&, const double*, const double*));
+  public:
+    // this thing creates a copy of 'other' in terms of bins and settings,
+    // however if FULL==false the new DLM_Ck will be SIMPLE HISTO, with no attatchment to cats or functions objects!!!
+    DLM_Ck(const DLM_Ck &other, bool FULL);
+    DLM_Ck(const DLM_Histo<double> &other);
+    DLM_Ck(const unsigned numbins, const double &kmin, const double &kmax);
+    DLM_Ck(const unsigned &nSourcePar, const unsigned &nPotPar, CATS &cat);
+    DLM_Ck(const unsigned &nSourcePar, const unsigned &nPotPar, CATS &cat, const unsigned &numbin, const double *bins);
+    DLM_Ck(const unsigned &nSourcePar, const unsigned &nPotPar, CATS &cat, const unsigned &numbin, const double &minMom,
+           const double &maxMom);
+    DLM_Ck(const unsigned &nSourcePar, const unsigned &nPotPar, const unsigned &numbin, const double *bins,
+           double (*CorrFun)(const double &, const double *, const double *));
+    DLM_Ck(const unsigned &nSourcePar, const unsigned &nPotPar, const unsigned &numbin, const double &minMom,
+           const double &maxMom, double (*CorrFun)(const double &, const double *, const double *));
     ~DLM_Ck();
 
-    //change UpToData when you do that
-    void SetSourcePar(const unsigned& WhichPar, const double& Value);
-    double GetSourcePar(const unsigned& WhichPar);
+    // change UpToData when you do that
+    void SetSourcePar(const unsigned &WhichPar, const double &Value);
+    double GetSourcePar(const unsigned &WhichPar);
     unsigned GetNumSourcePar();
-    void SetPotPar(const unsigned& WhichPar, const double& Value);
-    double GetPotPar(const unsigned& WhichPar);
-    //double GetPotPar(const unsigned& WhichPar);
+    void SetPotPar(const unsigned &WhichPar, const double &Value);
+    double GetPotPar(const unsigned &WhichPar);
+    // double GetPotPar(const unsigned& WhichPar);
     unsigned GetNumPotPar();
-    //the momentum value after which the correlation will be interpolated
-    //N.B. if we go outside the maximum momentum, the same is assumed
-    //the interpolation is done so, as the C(k) is linearly propagated between the final computed point and C(kc) = 1.
-    //If kc<maximum momentum C(k>maximum momentum) = C(maximum momentum)
-    //If kc<0, than outside the maximum momentum C(k) = |kc|
-    void SetCutOff(const double& Momentum=1e6, const double& kc=-1);
+    // the momentum value after which the correlation will be interpolated
+    // N.B. if we go outside the maximum momentum, the same is assumed
+    // the interpolation is done so, as the C(k) is linearly propagated between the final computed point and C(kc) = 1.
+    // If kc<maximum momentum C(k>maximum momentum) = C(maximum momentum)
+    // If kc<0, than outside the maximum momentum C(k) = |kc|
+    void SetCutOff(const double &Momentum = 1e6, const double &kc = -1);
     double GetCutOff() const;
     double GetCutOff_kc() const;
 
-    CATS* GetTheCat() const;
+    CATS *GetTheCat() const;
 
     bool Status();
-    void Update(const bool& FORCE=false);
-    double Eval(const double& Momentum);
+    void Update(const bool &FORCE = false);
+    double Eval(const double &Momentum);
 
-private:
+  private:
     const unsigned NumSourcePar;
     const unsigned NumPotPar;
-    //double* MomBinCopy;
-    CATS* Kitty;
-    double (*CkFunction)(const double&, const double*, const double*);
-    double* SourcePar;
+    // double* MomBinCopy;
+    CATS *Kitty;
+    double (*CkFunction)(const double &, const double *, const double *);
+    double *SourcePar;
     bool SourceUpToDate;
-    double* PotPar;
+    double *PotPar;
     bool PotUpToDate;
     double CutOff;
     double CutOff_kc;

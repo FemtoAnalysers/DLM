@@ -1,16 +1,16 @@
 #ifndef DLM_FITTERS_H
 #define DLM_FITTERS_H
 
-//#include "CATS.h"
-//#include "DLM_SmearedCats.h"
+// #include "CATS.h"
+// #include "DLM_SmearedCats.h"
 
 #include "TString.h"
 
-//#include "DLM_CkDecomp.h"
+// #include "DLM_CkDecomp.h"
 
-//this typedef it used to save the potentials for the
-//different channels as an array of function pointers.
-//typedef double (*CatsAnaSource)(double*);
+// this typedef it used to save the potentials for the
+// different channels as an array of function pointers.
+// typedef double (*CatsAnaSource)(double*);
 
 class DLM_CkDecomp;
 class TGraph;
@@ -18,114 +18,145 @@ class TGraphErrors;
 class TH1F;
 class TF1;
 
-//this typedef it used to save the functions for the
-//different baselines as an array of function pointers.
-typedef double (*FitterFunction)(double*,double*);
+// this typedef it used to save the functions for the
+// different baselines as an array of function pointers.
+typedef double (*FitterFunction)(double *, double *);
 
-double DLM_FITTER2_FUNCTION_POL(double* xVal, double* pars);
-double DLM_FITTER2_FUNCTION_SPLINE3(double* xVal, double* pars);
+double DLM_FITTER2_FUNCTION_POL(double *xVal, double *pars);
+double DLM_FITTER2_FUNCTION_SPLINE3(double *xVal, double *pars);
 
-//!FOR TEST!
-//#include "TCanvas.h"
-//#include "TFile.h"
+//! FOR TEST!
+// #include "TCanvas.h"
+// #include "TFile.h"
 
-class DLM_Fitter1{
+class DLM_Fitter1 {
 
-public:
+  public:
     //(a+b*x+c*x*x)*C(k)
-    enum fFitPar { p_a, p_b, p_c, p_3, p_4, p_ab_0, p_ab_1, p_ab_2, p_ab_3, p_ab_4, p_ab_5, p_ab_6, p_Cl, p_kc,
-    p_sor0, p_sor1, p_sor2, p_sor3, p_sor4, p_sor5, p_pot0, p_pot1, p_pot2, p_pot3, p_pot4, p_pot5, p_spline  };
+    enum fFitPar {
+        p_a,
+        p_b,
+        p_c,
+        p_3,
+        p_4,
+        p_ab_0,
+        p_ab_1,
+        p_ab_2,
+        p_ab_3,
+        p_ab_4,
+        p_ab_5,
+        p_ab_6,
+        p_Cl,
+        p_kc,
+        p_sor0,
+        p_sor1,
+        p_sor2,
+        p_sor3,
+        p_sor4,
+        p_sor5,
+        p_pot0,
+        p_pot1,
+        p_pot2,
+        p_pot3,
+        p_pot4,
+        p_pot5,
+        p_spline
+    };
     enum fFitRange { kmin, kf, kl, kmax };
 
-    DLM_Fitter1(const unsigned& maxnumsyst=16);
+    DLM_Fitter1(const unsigned &maxnumsyst = 16);
     ~DLM_Fitter1();
 
-    //sets up a certain system that we want to fit
-    void SetSystem(const unsigned& WhichSyst, const TH1F& histo, const double& FromMeV ,
-                   DLM_CkDecomp& decomp, const double& KMIN, const double& KFEMTO, const double& KLINEAR, const double& KMAX);
-    int GetSystem(const TString& System);
-    TString GetSystem(const unsigned& WhichSyst);
-    bool ChangeCkModel(const unsigned& WhichSyst, DLM_CkDecomp& decomp);
-    //in case there are multiple systems sharing a source this should be set here
-    void AddSameSource(const TString& System, const TString& EqualTo, const int& numpars);
-    void RemoveSameSource(const TString& System);
-    void AddSamePotential(const TString& System, const TString& EqualTo, const int& numpars);
-    void RemoveSamePotential(const TString& System);
-    void AddSameParameter(const TString& System, const unsigned& WhichPar, const TString& ParentSystem, const unsigned& ParentPar);
-    void RemoveSameParameter(const TString& System, const unsigned& WhichPar);
-    //returns not just the parent, but parent of the parent of the .....
-    int GetBaseParameter(const int& WhichSyst, const int& WhichPar);
-    int GetBaseParameter(const int& WhichSyst, const int& WhichPar, int& ParentSystem, int& ParentPar);
-    int GetBaseParameter(const TString& System, const int& WhichPar);
-    int GetBaseParameter(const TString& System, const int& WhichPar, TString& ParentSystem, int& ParentPar);
+    // sets up a certain system that we want to fit
+    void SetSystem(const unsigned &WhichSyst, const TH1F &histo, const double &FromMeV, DLM_CkDecomp &decomp,
+                   const double &KMIN, const double &KFEMTO, const double &KLINEAR, const double &KMAX);
+    int GetSystem(const TString &System);
+    TString GetSystem(const unsigned &WhichSyst);
+    bool ChangeCkModel(const unsigned &WhichSyst, DLM_CkDecomp &decomp);
+    // in case there are multiple systems sharing a source this should be set here
+    void AddSameSource(const TString &System, const TString &EqualTo, const int &numpars);
+    void RemoveSameSource(const TString &System);
+    void AddSamePotential(const TString &System, const TString &EqualTo, const int &numpars);
+    void RemoveSamePotential(const TString &System);
+    void AddSameParameter(const TString &System, const unsigned &WhichPar, const TString &ParentSystem,
+                          const unsigned &ParentPar);
+    void RemoveSameParameter(const TString &System, const unsigned &WhichPar);
+    // returns not just the parent, but parent of the parent of the .....
+    int GetBaseParameter(const int &WhichSyst, const int &WhichPar);
+    int GetBaseParameter(const int &WhichSyst, const int &WhichPar, int &ParentSystem, int &ParentPar);
+    int GetBaseParameter(const TString &System, const int &WhichPar);
+    int GetBaseParameter(const TString &System, const int &WhichPar, TString &ParentSystem, int &ParentPar);
 
-    //0 is a polynomial of type a+bx+...
-    //1 is a polynomial of type a*(1+bx+...)
-    void SetMultBaselineType(const int& TYPE);
-    void SetAddBaselineType(const int& TYPE);
+    // 0 is a polynomial of type a+bx+...
+    // 1 is a polynomial of type a*(1+bx+...)
+    void SetMultBaselineType(const int &TYPE);
+    void SetAddBaselineType(const int &TYPE);
 
     //
-    //void SetSameSourceChildren(const TString& WhichSyst, const TString& EqualTo, const int& NumPars);
+    // void SetSameSourceChildren(const TString& WhichSyst, const TString& EqualTo, const int& NumPars);
 
-    void SetParameter(const unsigned& WhichSyst, const unsigned& WhichPar, const double& Value, const double& ValueDown=-1e64, const double& ValueUp=1e64);
-    void SetParameter(const TString& WhichSyst, const unsigned& WhichPar, const double& Value, const double& ValueDown=-1e64, const double& ValueUp=1e64);
-    void FixParameter(const unsigned& WhichSyst, const unsigned& WhichPar, const double& Value);
-    void FixParameter(const TString& WhichSyst, const unsigned& WhichPar, const double& Value);
-    //fix the parameter to the current value
-    void FixParameter(const unsigned& WhichSyst, const unsigned& WhichPar);
-    void FixParameter(const TString& WhichSyst, const unsigned& WhichPar);
-    double GetParameter(const unsigned& WhichSyst, const unsigned& WhichPar);
-    double GetParError(const unsigned& WhichSyst, const unsigned& WhichPar);
-    double GetParameter(const TString& WhichSyst, const unsigned& WhichPar);
-    double GetParError(const TString& WhichSyst, const unsigned& WhichPar);
+    void SetParameter(const unsigned &WhichSyst, const unsigned &WhichPar, const double &Value,
+                      const double &ValueDown = -1e64, const double &ValueUp = 1e64);
+    void SetParameter(const TString &WhichSyst, const unsigned &WhichPar, const double &Value,
+                      const double &ValueDown = -1e64, const double &ValueUp = 1e64);
+    void FixParameter(const unsigned &WhichSyst, const unsigned &WhichPar, const double &Value);
+    void FixParameter(const TString &WhichSyst, const unsigned &WhichPar, const double &Value);
+    // fix the parameter to the current value
+    void FixParameter(const unsigned &WhichSyst, const unsigned &WhichPar);
+    void FixParameter(const TString &WhichSyst, const unsigned &WhichPar);
+    double GetParameter(const unsigned &WhichSyst, const unsigned &WhichPar);
+    double GetParError(const unsigned &WhichSyst, const unsigned &WhichPar);
+    double GetParameter(const TString &WhichSyst, const unsigned &WhichPar);
+    double GetParError(const TString &WhichSyst, const unsigned &WhichPar);
     double GetChi2();
     int GetNdf();
     double GetChi2Ndf();
     double GetPval();
-    //double Eval(const unsigned& WhichSyst, const double& Momentum);
-    void GetFitGraph(const unsigned& WhichSyst, TGraph& OutGraph, const bool& DataBinning=true);
-    void GetMultBaselineGraph(const unsigned& WhichSyst, TGraph& OutGraph, const bool& DataBinning=true);
-    //gets Ck related to the main contribution (not scaled for lambda pars). I.e. theory but smeared
-    void GetCkDecompGraph(const unsigned& WhichSyst, TGraph& OutGraph);
-    //the pure theoretical prediction
-    void GetCkTheoryGraph(const unsigned& WhichSyst, TGraph& OutGraph);
+    // double Eval(const unsigned& WhichSyst, const double& Momentum);
+    void GetFitGraph(const unsigned &WhichSyst, TGraph &OutGraph, const bool &DataBinning = true);
+    void GetMultBaselineGraph(const unsigned &WhichSyst, TGraph &OutGraph, const bool &DataBinning = true);
+    // gets Ck related to the main contribution (not scaled for lambda pars). I.e. theory but smeared
+    void GetCkDecompGraph(const unsigned &WhichSyst, TGraph &OutGraph);
+    // the pure theoretical prediction
+    void GetCkTheoryGraph(const unsigned &WhichSyst, TGraph &OutGraph);
 
-    void SetOutputDir(const TString& outdirname);
-    void SetSeparateBL(const unsigned& WhichSyst, const bool& yesno);
-    //if true, there is not really a baseline region, in a sense that Ck is evaluated fully in the baseline region as well.
-    //this was build in case a region of the fit needs to be cut-off, e.g. a peak
-    //N.B. if set to yes, it overrides the SeparateBL!
-    void SetFullCkForBaseline(const unsigned& WhichSyst, const bool& yesno);
+    void SetOutputDir(const TString &outdirname);
+    void SetSeparateBL(const unsigned &WhichSyst, const bool &yesno);
+    // if true, there is not really a baseline region, in a sense that Ck is evaluated fully in the baseline region as
+    // well. this was build in case a region of the fit needs to be cut-off, e.g. a peak N.B. if set to yes, it
+    // overrides the SeparateBL!
+    void SetFullCkForBaseline(const unsigned &WhichSyst, const bool &yesno);
 
-    void RemoveNegativeCk(const bool& yesno);
+    void RemoveNegativeCk(const bool &yesno);
     bool CheckNegativeCk();
 
-    const unsigned GetNumParPerSyst(){return NumPar;}
+    const unsigned GetNumParPerSyst() { return NumPar; }
 
-    TF1* GetFit();
-    TF1* GetBaselineFit(const unsigned& WhichSyst) const;
-    const TH1F* GetGlobalHisto() const;
+    TF1 *GetFit();
+    TF1 *GetBaselineFit(const unsigned &WhichSyst) const;
+    const TH1F *GetGlobalHisto() const;
 
-    TGraphErrors* GetUnfoldedCk(const unsigned& WhichSyst, const unsigned& Regulator, const TString& SaveIntoFile) const;
+    TGraphErrors *GetUnfoldedCk(const unsigned &WhichSyst, const unsigned &Regulator,
+                                const TString &SaveIntoFile) const;
 
-    //TGraph* GetUnfoldedPrimaryCk();
-    //TGraph* GetUnfoldedFit();
-    //TGraph* GetUnfoldedPrimaryFit();
-    //TGraph* GetUnfoldedBaselineFit();
+    // TGraph* GetUnfoldedPrimaryCk();
+    // TGraph* GetUnfoldedFit();
+    // TGraph* GetUnfoldedPrimaryFit();
+    // TGraph* GetUnfoldedBaselineFit();
 
-    //set up the global histogram and perform the fit
-    void GoBabyGo(const bool& show_fit_info=false);
+    // set up the global histogram and perform the fit
+    void GoBabyGo(const bool &show_fit_info = false);
 
-//void TEST1(const unsigned& WhichSyst, TH1F* histo, const double& FromMeV ,
-//                   DLM_CkDecomp* decomp, const double& KMIN, const double& KFEMTO, const double& KLINEAR, const double& KMAX);
+    // void TEST1(const unsigned& WhichSyst, TH1F* histo, const double& FromMeV ,
+    //                    DLM_CkDecomp* decomp, const double& KMIN, const double& KFEMTO, const double& KLINEAR, const
+    //                    double& KMAX);
 
-    //double TESTEVAL(double xVal, double* PARS) {return EvalGlobal(&xVal, PARS);}
+    // double TESTEVAL(double xVal, double* PARS) {return EvalGlobal(&xVal, PARS);}
 
-
-private:
+  private:
     const unsigned MaxNumSyst;
     const unsigned NumPar;
-    //const unsigned NumPotPar;
+    // const unsigned NumPotPar;
     const unsigned NumRangePar;
     bool RemoveNegCk;
     int TypeMultBl;
@@ -133,141 +164,141 @@ private:
 
     TString OutputDirName;
 
-    const TH1F** HistoOriginal;
-    TH1F** HistoToFit;
+    const TH1F **HistoOriginal;
+    TH1F **HistoToFit;
 
     //[WhichSyst]
-    DLM_CkDecomp** SystemToFit;
+    DLM_CkDecomp **SystemToFit;
     unsigned NumSourceSystems;
-    //an array containing all main Ck's + all secondaries that have their source fixed to one of the mains
-    DLM_CkDecomp** SourceSystems;
-    //the ID in the main array of the Ck to which the source of a system is fixed
-    int* ParentSource;
-    int* ParentParameter;
+    // an array containing all main Ck's + all secondaries that have their source fixed to one of the mains
+    DLM_CkDecomp **SourceSystems;
+    // the ID in the main array of the Ck to which the source of a system is fixed
+    int *ParentSource;
+    int *ParentParameter;
 
     unsigned NumPotentialSystems;
-    //an array containing all main Ck's + all secondaries that have their source fixed to one of the mains
-    DLM_CkDecomp** PotentialSystems;
-    //the ID in the main array of the Ck to which the source of a system is fixed
-    int* ParentPotential;
+    // an array containing all main Ck's + all secondaries that have their source fixed to one of the mains
+    DLM_CkDecomp **PotentialSystems;
+    // the ID in the main array of the Ck to which the source of a system is fixed
+    int *ParentPotential;
 
     //[WhichSyst][0-3] 0-3: kMin,kFemto,kLinear,kMax
-    double** FitRange;
+    double **FitRange;
 
     //[Entry][WhichSystem/TemplateSystem]
-    TString** SameSourceMap;
-    int* NumSameSourcePar;
+    TString **SameSourceMap;
+    int *NumSameSourcePar;
     unsigned NumSourceMapEntries;
 
-    TString** SamePotentialMap;
-    int* NumSamePotentialPar;
+    TString **SamePotentialMap;
+    int *NumSamePotentialPar;
     unsigned NumPotentialMapEntries;
 
-    //for the future. Might be useful for UrFAT
-    //TString** SameInterMap;
-    //int* NumSameInterMap;
+    // for the future. Might be useful for UrFAT
+    // TString** SameInterMap;
+    // int* NumSameInterMap;
 
-    double** ParValue;
-    double** ParDownLimit;
-    double** ParUpLimit;
-    bool** FixPar;
-    bool* SeparateBaseLineFit;
-    bool* FullCkForBaseline;
+    double **ParValue;
+    double **ParDownLimit;
+    double **ParUpLimit;
+    bool **FixPar;
+    bool *SeparateBaseLineFit;
+    bool *FullCkForBaseline;
 
-    TH1F* HistoGlobal;
-    TF1* FitGlobal;
-    TF1** FitBL;
+    TH1F *HistoGlobal;
+    TF1 *FitGlobal;
+    TF1 **FitBL;
 
-    double* GlobalToMomentum;
-    unsigned* NumBinsSyst;
-    unsigned* CumulativeNumBinsSyst;
+    double *GlobalToMomentum;
+    unsigned *NumBinsSyst;
+    unsigned *CumulativeNumBinsSyst;
 
     bool ShowFitInfo;
 
-    //unsigned SourceAnchoredTo(const);
+    // unsigned SourceAnchoredTo(const);
 
-    double EvalGlobal(double* xVal, double* Pars);
-    int GetBaseParameter(const int& WhichSyst, const int& WhichPar, int& ParentSystem, int& ParentPar, const int& StartSystem, const int& StartPar);
-    int GetBaseParameter(const TString& System, const int& WhichPar, TString& ParentSystem, int& ParentPar, const TString& StartSystem, const int& StartPar);
-
+    double EvalGlobal(double *xVal, double *Pars);
+    int GetBaseParameter(const int &WhichSyst, const int &WhichPar, int &ParentSystem, int &ParentPar,
+                         const int &StartSystem, const int &StartPar);
+    int GetBaseParameter(const TString &System, const int &WhichPar, TString &ParentSystem, int &ParentPar,
+                         const TString &StartSystem, const int &StartPar);
 };
 
+class DLM_Fitter2 {
 
-
-
-
-class DLM_Fitter2{
-
-public:
-    //AddBl(k)*C(k)+MultBl(k)
+  public:
+    // AddBl(k)*C(k)+MultBl(k)
     enum fFitPar { p_Ck, p_sor, p_pot, p_AddBl, p_MultBl };
     enum fFitRange { kmin, kf, kl, kmax };
-    //Default functions for the baseline, information:
-    //f_pol:        Info = Order of the polynomial
-    //              [0] = Order of the polynomial (N) (SHOULD BE ALWAYS FIXED!!!)
-    //              [1...N+1] = the parameter for the 0...N order
-    //f_spline3:    Info = Number of knots in the spline
-    //              [0] = Number of knots in the spline (N)
-    //              [1...N] = the x-values of the knots
-    //              [N+1...2N] = the y-value of the knots
-    //              [2N+1] = the value of the derivative at the first knot
-    //              [2N+2] = the value of the derivative at the last knot
-    enum fBlFunction { f_pol, f_spline3, f_na=-1 };
+    // Default functions for the baseline, information:
+    // f_pol:        Info = Order of the polynomial
+    //               [0] = Order of the polynomial (N) (SHOULD BE ALWAYS FIXED!!!)
+    //               [1...N+1] = the parameter for the 0...N order
+    // f_spline3:    Info = Number of knots in the spline
+    //               [0] = Number of knots in the spline (N)
+    //               [1...N] = the x-values of the knots
+    //               [N+1...2N] = the y-value of the knots
+    //               [2N+1] = the value of the derivative at the first knot
+    //               [2N+2] = the value of the derivative at the last knot
+    enum fBlFunction { f_pol, f_spline3, f_na = -1 };
     enum fBlType { b_add, b_mult };
 
-    DLM_Fitter2(const int& maxnumsyst=16);
+    DLM_Fitter2(const int &maxnumsyst = 16);
     ~DLM_Fitter2();
 
-    int GetSystemID(const TString& WhichSyst);
+    int GetSystemID(const TString &WhichSyst);
 
-    //set up the baseline function, by passing a pointed
-    void SetUpAddBl(const TString& WhichSyst, double (*FUNCTION)(double*,double*),const int& numpars);
-    //setup the baseline function for the predefined type. Info is specific for each type and my have different meaning
-    void SetUpAddBl(const TString& WhichSyst, const fBlFunction& TYPE, const int& Info);
-    void SetUpMultBl(const TString& WhichSyst, double (*FUNCTION)(double*,double*),const int& numpars);
-    void SetUpMultBl(const TString& WhichSyst, const fBlFunction& TYPE, const int& Info);
+    // set up the baseline function, by passing a pointed
+    void SetUpAddBl(const TString &WhichSyst, double (*FUNCTION)(double *, double *), const int &numpars);
+    // setup the baseline function for the predefined type. Info is specific for each type and my have different meaning
+    void SetUpAddBl(const TString &WhichSyst, const fBlFunction &TYPE, const int &Info);
+    void SetUpMultBl(const TString &WhichSyst, double (*FUNCTION)(double *, double *), const int &numpars);
+    void SetUpMultBl(const TString &WhichSyst, const fBlFunction &TYPE, const int &Info);
 
-    void SetPolParX(const TString& WhichSyst, const fBlType& WhichBl, const int& WhichPar, const double& Value);
-    void FixPolParX(const TString& WhichSyst, const fBlType& WhichBl, const int& WhichPar, const double& Value);
-    void SetLimitPolParX(const TString& WhichSyst, const fBlType& WhichBl, const int& WhichPar, const double& down, const double& up);
-    void SetPolParY(const TString& WhichSyst, const fBlType& WhichBl, const int& WhichPar, const double& Value);
-    void FixPolParY(const TString& WhichSyst, const fBlType& WhichBl, const int& WhichPar, const double& Value);
-    void SetLimitPolParY(const TString& WhichSyst, const fBlType& WhichBl, const int& WhichPar, const double& down, const double& up);
+    void SetPolParX(const TString &WhichSyst, const fBlType &WhichBl, const int &WhichPar, const double &Value);
+    void FixPolParX(const TString &WhichSyst, const fBlType &WhichBl, const int &WhichPar, const double &Value);
+    void SetLimitPolParX(const TString &WhichSyst, const fBlType &WhichBl, const int &WhichPar, const double &down,
+                         const double &up);
+    void SetPolParY(const TString &WhichSyst, const fBlType &WhichBl, const int &WhichPar, const double &Value);
+    void FixPolParY(const TString &WhichSyst, const fBlType &WhichBl, const int &WhichPar, const double &Value);
+    void SetLimitPolParY(const TString &WhichSyst, const fBlType &WhichBl, const int &WhichPar, const double &down,
+                         const double &up);
 
-    void SetSplineKnotX(const TString& WhichSyst, const fBlType& WhichBl, const int& WhichKnot, const double& Value);
-    void FixSplineKnotX(const TString& WhichSyst, const fBlType& WhichBl, const int& WhichKnot, const double& Value);
-    void SetLimitSplineKnotX(const TString& WhichSyst, const fBlType& WhichBl, const int& WhichKnot, const double& down, const double& up);
-    void SetSplineKnotY(const TString& WhichSyst, const fBlType& WhichBl, const int& WhichKnot, const double& Value);
-    void FixSplineKnotY(const TString& WhichSyst, const fBlType& WhichBl, const int& WhichKnot, const double& Value);
-    void SetLimitSplineKnotY(const TString& WhichSyst, const fBlType& WhichBl, const int& WhichKnot, const double& down, const double& up);
+    void SetSplineKnotX(const TString &WhichSyst, const fBlType &WhichBl, const int &WhichKnot, const double &Value);
+    void FixSplineKnotX(const TString &WhichSyst, const fBlType &WhichBl, const int &WhichKnot, const double &Value);
+    void SetLimitSplineKnotX(const TString &WhichSyst, const fBlType &WhichBl, const int &WhichKnot, const double &down,
+                             const double &up);
+    void SetSplineKnotY(const TString &WhichSyst, const fBlType &WhichBl, const int &WhichKnot, const double &Value);
+    void FixSplineKnotY(const TString &WhichSyst, const fBlType &WhichBl, const int &WhichKnot, const double &Value);
+    void SetLimitSplineKnotY(const TString &WhichSyst, const fBlType &WhichBl, const int &WhichKnot, const double &down,
+                             const double &up);
 
-private:
-
+  private:
     const int MaxNumSyst;
 
-    //Number of parameters per system
-    int* NumPars;
-    int* NumCkPars;
-    int* NumSorPars;
-    int* NumPotPars;
-    int* NumAddBlPars;
-    int* NumMultBlPars;
+    // Number of parameters per system
+    int *NumPars;
+    int *NumCkPars;
+    int *NumSorPars;
+    int *NumPotPars;
+    int *NumAddBlPars;
+    int *NumMultBlPars;
 
-    //the position of the first parameter of the corresponding system, within the lists below
-    int* StartPars;
-    int* StartCkPars;
-    int* StartSorPars;
-    int* StartPotPars;
-    int* StartAddBlPars;
-    int* StartMultBlPars;
+    // the position of the first parameter of the corresponding system, within the lists below
+    int *StartPars;
+    int *StartCkPars;
+    int *StartSorPars;
+    int *StartPotPars;
+    int *StartAddBlPars;
+    int *StartMultBlPars;
 
-    //all parameters. To get one associated with a particular system, use the StartPars above
+    // all parameters. To get one associated with a particular system, use the StartPars above
     int CurrentNumPars;
     int MaxNumPars;
-    double* Pars;
-    double* ParsErr;
-    double* ParsDownLim;
-    double* ParsUpLim;
+    double *Pars;
+    double *ParsErr;
+    double *ParsDownLim;
+    double *ParsUpLim;
     /*
     double* Pars_Ck;
     double* ParsErr_Ck;
@@ -291,26 +322,26 @@ private:
     double* ParsUpLim_MultBl;
     */
 
-    //double (*Function_AddBl)(double* xVal, double* pars);
-    //double (*Function_MultBl)(double* xVal, double* pars);
+    // double (*Function_AddBl)(double* xVal, double* pars);
+    // double (*Function_MultBl)(double* xVal, double* pars);
 
-    FitterFunction* Function_AddBl;
-    FitterFunction* Function_MultBl;
-    fBlFunction* FunctionType_AddBl;
-    fBlFunction* FunctionType_MultBl;
+    FitterFunction *Function_AddBl;
+    FitterFunction *Function_MultBl;
+    fBlFunction *FunctionType_AddBl;
+    fBlFunction *FunctionType_MultBl;
 
-    DLM_CkDecomp** SystemToFit;
+    DLM_CkDecomp **SystemToFit;
 
     void IncreaseMaxNumPars();
 };
-
 
 /*
 CATS* FIT_CATS1; CATS* FIT_CATS2; CATS* FIT_CATS3; CATS* FIT_CATS4;
 
 //!Info for the global fits
 //to fit globally, we assume that there is a single histogram to fit. This histogram contains all bins of the pp and pL
-//data, where the first set of bins are those corresponding to pp. The x-val is in arbitrary units and takes values from 0 to 1.
+//data, where the first set of bins are those corresponding to pp. The x-val is in arbitrary units and takes values from
+0 to 1.
 //the BorderValue (the [0]th parameter) is the value which separates pp from pL bins
 //in order to convert the x-axis to momentum, we need to know the minimum and maximum momentum for pp and pL,
 //those are set in the [1] and [2] fit parameters

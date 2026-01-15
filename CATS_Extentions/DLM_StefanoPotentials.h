@@ -6,11 +6,10 @@
 #include "math.h"
 #include <stdio.h>
 
-class DLM_StefanoPotentials{
+class DLM_StefanoPotentials {
 
-private:
-
-    enum ParticleType { neutron=-1, proton=1 };
+  private:
+    enum ParticleType { neutron = -1, proton = 1 };
 
     const double m_pi;
     const double m_pi_not;
@@ -30,119 +29,116 @@ private:
     const double vsmall;
 
     const double xmn, gam, rho, chi, omg, ftp;
-    const double mp,mn;
+    const double mp, mn;
 
+    double *vv; // size 18
+    double *vp; // size 12
+    double *vw; // size 14
+    double mpi0, mpic, mpi, mpis, mpiq, mu0, muc, mu, mus, muq;
+    double krho, komg, lam, lamp, lamw, mrho, momg, murho, muomg;
+    // double* pm0,
+    // pm1,pgva01,pgva11,pgva00,pgva10,pgvb01,pgvb11,pgvb00,pgvb10,pgvls1,pgvt1,pgvso21,pgvls0,pgvt0,pgvso20;//size 12
+    const int lpot; //! THIS SPECIFIES THE POTENTIAL
+                    //        1=malfliet-tjon V
+                    //        2=reid v8
+                    //        3=urbana v14
+                    //        4=argonne v8 (v8' reduction of v14)
+                    //        5=argonne v9 (less simplified v14)
+                    //        6=argonne v14
+                    //        7=argonne v18-csbl (experimental cd/csb-large)
+                    //        8=argonne v18-csbs (experimental cd/csb-small)
+                    //        9=argonne v18
+                    //       10=argonne v8'
+                    //       11=argonne v6'
+                    //       12=argonne v4'
+                    //       13=argonne v2'
+                    //       14=argonne v1'
+                    //       15=argonne vx'
+                    //       16=argonne v18p  (p**2 terms)
+                    //       17=argonne v18pq (p**2 terms & l**2 tensor)
+                    //       18=super-soft core(c) v14
+                    //       19=super-soft core(c) v8' modified
+                    //       20=paris
+                    //       21=argonne v18 v1.9
+                    //       22=argonne v8' v1.9
+                    //       23=argonne v18 v1.7
+                    //       24=argonne v8' v1.7
+                    //       lpot=112 means LO, R0=1.0
+                    //       lpot=113 means NLO, R0=1,0
+                    //       lpot=114 means N2LO, R0=1.0
+                    //       lpot=122 means LO, R0=1.2
+                    //       lpot=123 means NLO, R0=1,2
+                    //       lpot=124 means N2LO, R0=1.2
 
-    double* vv;//size 18
-    double* vp;//size 12
-    double* vw;//size 14
-    double mpi0,mpic,mpi,mpis,mpiq,mu0,muc,mu,mus,muq;
-    double krho,komg,lam,lamp,lamw,mrho,momg,murho,muomg;
-    //double* pm0, pm1,pgva01,pgva11,pgva00,pgva10,pgvb01,pgvb11,pgvb00,pgvb10,pgvls1,pgvt1,pgvso21,pgvls0,pgvt0,pgvso20;//size 12
-    const int lpot;//! THIS SPECIFIES THE POTENTIAL
-//        1=malfliet-tjon V
-//        2=reid v8
-//        3=urbana v14
-//        4=argonne v8 (v8' reduction of v14)
-//        5=argonne v9 (less simplified v14)
-//        6=argonne v14
-//        7=argonne v18-csbl (experimental cd/csb-large)
-//        8=argonne v18-csbs (experimental cd/csb-small)
-//        9=argonne v18
-//       10=argonne v8'
-//       11=argonne v6'
-//       12=argonne v4'
-//       13=argonne v2'
-//       14=argonne v1'
-//       15=argonne vx'
-//       16=argonne v18p  (p**2 terms)
-//       17=argonne v18pq (p**2 terms & l**2 tensor)
-//       18=super-soft core(c) v14
-//       19=super-soft core(c) v8' modified
-//       20=paris
-//       21=argonne v18 v1.9
-//       22=argonne v8' v1.9
-//       23=argonne v18 v1.7
-//       24=argonne v8' v1.7
-//       lpot=112 means LO, R0=1.0
-//       lpot=113 means NLO, R0=1,0
-//       lpot=114 means N2LO, R0=1.0
-//       lpot=122 means LO, R0=1.2
-//       lpot=123 means NLO, R0=1,2
-//       lpot=124 means N2LO, R0=1.2
-
-    double ftpec,pimass1,pimass2,pimass3,wsrange,tnr;
+    double ftpec, pimass1, pimass2, pimass3, wsrange, tnr;
     bool v7cut;
 
-    double yc(const double& t, const double& x);
-    double yt(const double& t, const double& x);
-    double yls(const double& t, const double& x);
-    double yl2(const double& t, const double& x);
-    double pc(const double& t);
-    double pt(const double& t);
-    double pls(const double& t);
-    double pso2(const double& t);
+    double yc(const double &t, const double &x);
+    double yt(const double &t, const double &x);
+    double yls(const double &t, const double &x);
+    double yl2(const double &t, const double &x);
+    double pc(const double &t);
+    double pt(const double &t);
+    double pls(const double &t);
+    double pso2(const double &t);
 
+    // parameter for nucleon mass variation
+    // double xmn;
+    // void SetXmn(const double& val);
+    // double GetXmn();
 
+    // parameter for pion mass variation in OPE (Argonne only)
+    // double gam;
+    // void SetGam(const double& val);
+    // double GetGam();
 
-    //parameter for nucleon mass variation
-    //double xmn;
-    //void SetXmn(const double& val);
-    //double GetXmn();
+    // parameter for pion mass variation in TPE-s (Argonne only)
+    // double rho;
+    // void SetRho(const double& val);
+    // double GetRho();
 
-    //parameter for pion mass variation in OPE (Argonne only)
-    //double gam;
-    //void SetGam(const double& val);
-    //double GetGam();
+    // parameter for pion mass variation in TPE-L (Argonne only)
+    // double chi;
+    // void SetChi(const double& val);
+    // double GetChi();
 
-    //parameter for pion mass variation in TPE-s (Argonne only)
-    //double rho;
-    //void SetRho(const double& val);
-    //double GetRho();
+    // parameter for heavy-meson mass variation (Argonne only)
+    // double omg;
+    // void SetOmg(const double& val);
+    // double GetOmg();
 
-    //parameter for pion mass variation in TPE-L (Argonne only)
-    //double chi;
-    //void SetChi(const double& val);
-    //double GetChi();
+    // parameter for intermediate coupling variation (Argonne only)
+    // double ftp;
+    // void SetFtp(const double& val);
+    // double GetFtp();
 
-    //parameter for heavy-meson mass variation (Argonne only)
-    //double omg;
-    //void SetOmg(const double& val);
-    //double GetOmg();
+    // double h2m;
+    // double h2mcsb;
+    // double tnr;
+    // double hc;
+    // double mp;
+    // double mn;
 
-    //parameter for intermediate coupling variation (Argonne only)
-    //double ftp;
-    //void SetFtp(const double& val);
-    //double GetFtp();
+    double *pm1;
+    double *pm0;
+    double *pgva01;
+    double *pgva11;
+    double *pgvb01;
+    double *pgvb11;
+    double *pgvls1;
+    double *pgvt1;
+    double *pgvso21;
+    double *pgva00;
+    double *pgva10;
+    double *pgvb00;
+    double *pgvb10;
+    double *pgvls0;
+    double *pgvt0;
+    double *pgvso20;
 
-
-    //double h2m;
-    //double h2mcsb;
-    //double tnr;
-    //double hc;
-    //double mp;
-    //double mn;
-
-    double* pm1;
-    double* pm0;
-    double* pgva01;
-    double* pgva11;
-    double* pgvb01;
-    double* pgvb11;
-    double* pgvls1;
-    double* pgvt1;
-    double* pgvso21;
-    double* pgva00;
-    double* pgva10;
-    double* pgvb00;
-    double* pgvb10;
-    double* pgvls0;
-    double* pgvt0;
-    double* pgvso20;
-
-    const double* CurrentRadius;
-    const double* CurrentSmallRadius;
-    const double* CurrentVerySmallRadius;
+    const double *CurrentRadius;
+    const double *CurrentSmallRadius;
+    const double *CurrentVerySmallRadius;
 
     double p01;
     double p10;
@@ -303,7 +299,7 @@ private:
     double rc6;
     double EvalValue;
 
-//for the chiral potentials
+    // for the chiral potentials
     double x_not, x_plus, g_r0p, del_r;
     double pre_not, pre_plus;
     double W_C, V_S, V_T;
@@ -319,17 +315,14 @@ private:
     double LO_CSB;
     double NLO_C_s;
     double NLO_C_t;
-    double* NLO_C;
+    double *NLO_C;
     double NLO_CIB;
     double NLO_CSB;
     double N2LO_C_s;
     double N2LO_C_t;
-    double* N2LO_C;
+    double *N2LO_C;
     double N2LO_CIB;
     double N2LO_CSB;
-
-
-
 
     void MalflietTjon();
     void ReidV8();
@@ -341,32 +334,28 @@ private:
     void Paris();
 
     void setpot();
-    void pot(const double& rr, const double& lr=0);
+    void pot(const double &rr, const double &lr = 0);
 
-    void gauleg(double& x1, double& x2, double* x, double* w, const int& n);
-    void spectralNLO(const double& rad);
-    void spectralN2LO(const double& rad);
-    void cheft(const double& rr);
+    void gauleg(double &x1, double &x2, double *x, double *w, const int &n);
+    void spectralNLO(const double &rad);
+    void spectralN2LO(const double &rad);
+    void cheft(const double &rr);
 
-
-
-public:
-    DLM_StefanoPotentials(const int& WhichPot,
-            const int& XMN=1, const int& GAM=1, const int& RHO=1, const int& CHI=1, const int& OMG=1, const int& FTP=1);
+  public:
+    DLM_StefanoPotentials(const int &WhichPot, const int &XMN = 1, const int &GAM = 1, const int &RHO = 1,
+                          const int &CHI = 1, const int &OMG = 1, const int &FTP = 1);
     ~DLM_StefanoPotentials();
 
-    //for pp -> I==1; I3==1
-    //for pn -> I==1,0; I3==0
-    //for nn -> I==1; I3==-1
-    double Eval(const double& Radius, const int& Spin, const int& Spin3, const int& IsoSpin, const int& IsoSpin3);
-    double EvalCATS_v1_0(const double& Radius, const int& Spin);
-    double Eval_PWprojector(const double& Radius,const int& IsoSpin, const int& PartType1, const int& PartType2,
-                            const int& Spin, const int& AngMom, const int& TotMom, const int& DlmFlag);
-    double Eval_PWprojector_pp(const double& Radius, const int& Spin,const int& AngMom, const int& TotMom, const int& DlmFlag);
-    void PotentialName(const int& WhichPot, char* Name);
-
-
+    // for pp -> I==1; I3==1
+    // for pn -> I==1,0; I3==0
+    // for nn -> I==1; I3==-1
+    double Eval(const double &Radius, const int &Spin, const int &Spin3, const int &IsoSpin, const int &IsoSpin3);
+    double EvalCATS_v1_0(const double &Radius, const int &Spin);
+    double Eval_PWprojector(const double &Radius, const int &IsoSpin, const int &PartType1, const int &PartType2,
+                            const int &Spin, const int &AngMom, const int &TotMom, const int &DlmFlag);
+    double Eval_PWprojector_pp(const double &Radius, const int &Spin, const int &AngMom, const int &TotMom,
+                               const int &DlmFlag);
+    void PotentialName(const int &WhichPot, char *Name);
 };
 
 #endif
-
