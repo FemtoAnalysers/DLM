@@ -9,6 +9,8 @@
 #include "DLM_Source.h"
 #include "TREPNI.h"
 
+#include <exception>
+
 #include "omp.h"
 #include <thread>
 #include <unistd.h>
@@ -762,7 +764,19 @@ void CECA::OptimizeThreadCount() {}
 
 void CECA::SaveBuffer() {}
 
+void CECA::CheckReady() {
+    if (EMULT == 0) {
+        throw std::runtime_error("Event multiplicity = " + to_string(EMULT) + " is not valid.");
+    }
+
+    if (EMULT < SDIM) {
+        throw std::runtime_error("Event multiplicity = " + to_string(EMULT) + " < SDIM = " + to_string(SDIM));
+    }
+}
+
 void CECA::GoBabyGo(const unsigned &num_threads) {
+    CheckReady();
+
     GhettoInit();
     if (!Database.QA()) {
         return;

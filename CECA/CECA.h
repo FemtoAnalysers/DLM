@@ -211,6 +211,8 @@ class CECA {
     // they all have the same tau component
     void EqualizeFsiTime(const bool &yesno); // done
 
+    void CheckReady(); // Check if CECA is properly configured to run
+
     // if num_threads=0, we will dynamically adjust based on efficiency
     // check if EMULT>=SDIM on start!!!
     void GoBabyGo(const unsigned &num_threads = 0);
