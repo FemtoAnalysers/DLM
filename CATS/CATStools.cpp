@@ -13,6 +13,7 @@
 #include "DLM_CppTools.h"
 #include "DLM_MathFunctions.h"
 #include "DLM_Random.h"
+#include "DLM_Logger.h"
 
 #include <omp.h>
 
@@ -186,7 +187,11 @@ double CatsLorentzVector::GetR(const int &xyz) const { return (xyz >= 0 && xyz <
 double CatsLorentzVector::GetTheta() const {
     // return FourSpace[1] == 0.0 && FourSpace[2] == 0.0 && FourSpace[3] == 0.0 ? 0.0 :
     // atan2(sqrt(FourSpace[1]*FourSpace[1]+FourSpace[2]*FourSpace[2]),FourSpace[3]);
-    return AngleTheta(sqrt(FourSpace[1] * FourSpace[1] + FourSpace[2] * FourSpace[2]), FourSpace[3]);
+    double theta = AngleTheta(sqrt(FourSpace[1] * FourSpace[1] + FourSpace[2] * FourSpace[2]), FourSpace[3]);
+    if (theta != theta) {
+        LOG(LOG_LEVEL_ERROR, "theta is NAN!");
+    }
+    return theta;
 }
 double CatsLorentzVector::GetPhi() const {
     // return FourSpace[1] == 0.0 && FourSpace[2] == 0.0 ? 0.0 : atan2(FourSpace[2],FourSpace[1])+Pi;

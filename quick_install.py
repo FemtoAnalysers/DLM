@@ -391,7 +391,7 @@ def quick_install(type):
     print('--------------------')
     print(bcolors.BOLD+'Setup the installation folder'+bcolors.ENDC)
 
-    OnlyHeader = ['CATSconstants','DLM_Sort','DLM_Histo']
+    OnlyHeader = ['CATSconstants','DLM_Sort','DLM_Histo','DLM_Logger']
 
     IncDir = []
     IncDir.append('CATS')
@@ -470,6 +470,10 @@ def quick_install(type):
     cmakelists.write('SET(VERSION "${VERSION_MAJOR}")\n')
     cmakelists.write('SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CATS_INSTALL})\n')
     cmakelists.write('\n')
+
+    # Define log level
+    cmakelists.write('set(LOG_LEVEL 10 CACHE STRING "Log level (10=ERROR,20=WARN,30=INFO,40=DEBUG)")\n')
+    cmakelists.write('add_compile_definitions(LOG_LEVEL=${LOG_LEVEL})\n')
 
     cmakelists.write('include_directories(${GSL_INCLUDE})\n')
     for strng in IncDir:

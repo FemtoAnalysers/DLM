@@ -4,12 +4,10 @@
 #include "math.h"
 #include "omp.h"
 #include <iostream>
+#include "CATSconstants.h"
+#include "DLM_Logger.h"
 
 using namespace std;
-
-const double HalfPi(1.570796326794897);
-const double Pi(3.141592653589793);
-const double TwoPi(6.283185307179586);
 
 double **factrl_array = NULL;
 
@@ -98,6 +96,14 @@ double atanPhi(const double &y, const double &x) {
 }
 double AnglePhi(const double &py, const double &px) { return atanPhi(py, px); }
 double AngleTheta(const double &pt, const double &pz) {
+    if (std::isnan(pt)) {
+        LOG(LOG_LEVEL_FATAL, "pt is nan. Something is broken");
+    }
+
+    if (std::isnan(pz)) {
+        LOG(LOG_LEVEL_FATAL, "pz is nan. Something is broken");
+    }
+
     if (pt < 0)
         return 0;
     if (!pz)

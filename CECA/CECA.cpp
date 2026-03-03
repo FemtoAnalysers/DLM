@@ -4,6 +4,7 @@
 #include "CATStools.h"
 #include "DLM_CppTools.h"
 #include "DLM_Histo.h"
+#include "DLM_Logger.h"
 #include "DLM_MathFunctions.h"
 #include "DLM_Random.h"
 #include "DLM_Source.h"
@@ -776,6 +777,7 @@ void CECA::CheckReady() {
 
 void CECA::GoBabyGo(const unsigned &num_threads) {
     CheckReady();
+    LOG(LOG_LEVEL_INFO, "CECA is ready");
 
     GhettoInit();
     if (!Database.QA()) {
@@ -803,10 +805,8 @@ void CECA::GoBabyGo(const unsigned &num_threads) {
         DynamicThreads = false;
     }
 
-    if (DebugMode) {
-        printf("Running GoBabyGo\n");
-        printf(" Detected threads: %u\n", NumThreads);
-    }
+    LOG(LOG_LEVEL_INFO, " Detected threads: " + to_string(NumThreads));
+
     if (exp_file_name != "" && exp_file_flag) {
         FILE *file_ptr;
         // Open the file in write mode
@@ -881,6 +881,7 @@ void CECA::GoBabyGo(const unsigned &num_threads) {
     }
 
     delete[] BufferYield;
+    LOG(LOG_LEVEL_INFO, "Finished");
 }
 
 bool CECA::ParticleInList(const std::string &name) const {
@@ -914,6 +915,8 @@ unsigned CECA::GenerateEventTEMP() {
 // generates all particles, propagates and decays into the particles of interest
 // and lastly builds up the
 unsigned CECA::GenerateEvent(const unsigned &ThId) {
+    LOG(LOG_LEVEL_INFO, "Start");
+
     // unsigned ThId = omp_get_thread_num();
 
     // the event-by-event fluctuations, in absolute value
@@ -1004,6 +1007,8 @@ unsigned CECA::GenerateEvent(const unsigned &ThId) {
 
         } // uMult<EMULT
 
+        LOG(LOG_LEVEL_INFO, "Generated primary particles");
+
         // at this point, we need to check if the primordials, and their decay chains,
         // are providing the multiplets we need. If yes, we proceed with the
         // momentum generation and propagation
@@ -1050,7 +1055,9 @@ unsigned CECA::GenerateEvent(const unsigned &ThId) {
 
     } // the inifinite while loop
 
+    LOG(LOG_LEVEL_INFO, "Generating momenta");
     for (CecaParticle *primordial : Primordial) {
+        LOG(LOG_LEVEL_INFO, "Particle: " + primordial->Trepni()->GetName());
         //--- SAMPLE THE MOMENTUM ---//
         double axisValues[3];
         double &pT = axisValues[0];
@@ -1059,6 +1066,7 @@ unsigned CECA::GenerateEvent(const unsigned &ThId) {
         double px, py, pz, ptot, sin_th, cos_th, cotg_th, cos_phi, sin_phi;
 
         primordial->Trepni()->SamplePxPyPz(axisValues, RanGen[ThId], true);
+        LOG(LOG_LEVEL_INFO, "Momentum sampled");
         px = axisValues[0];
         py = axisValues[1];
         pz = axisValues[2];
@@ -1070,9 +1078,16 @@ unsigned CECA::GenerateEvent(const unsigned &ThId) {
         cos_phi = px / (ptot * sin_th);
         sin_phi = py / (ptot * sin_th);
 
+        LOG(LOG_LEVEL_INFO, "Momentum components computed");
+        LOG(LOG_LEVEL_DEBUG, "px = " + to_string(px));
+        LOG(LOG_LEVEL_DEBUG, "py = " + to_string(py));
+        LOG(LOG_LEVEL_DEBUG, "pz = " + to_string(pz));
+
         primordial->Cats()->SetMXYZ(primordial->Trepni()->GetMass(), px, py, pz);
         primordial->Cats()->SetWidth(primordial->Trepni()->GetWidth());
         primordial->Cats()->SetDecayRanGen(RanGen[ThId]);
+
+        LOG(LOG_LEVEL_INFO, "CATS set");
 
         //--- EMISSION ---//
         //--- PROPAGATE BASED ON THE PROPERTIES OF THE CORE SOURCE ---//
@@ -1093,7 +1108,9 @@ unsigned CECA::GenerateEvent(const unsigned &ThId) {
         for (int xyz = 0; xyz < 3; xyz++)
             mom0[xyz] = primordial->Cats()->GetP(xyz);
 
+
         while (true) {
+            LOG(LOG_LEVEL_INFO, "Beginning of while");
             for (int xyz = 0; xyz < 3; xyz++)
                 primordial->Cats()->SetMomXYZ(mom0[0], mom0[1], mom0[2]);
             if (ResampleCount == 0) {
@@ -1171,6 +1188,8 @@ unsigned CECA::GenerateEvent(const unsigned &ThId) {
                     rtot[xyz] += beta[xyz] / beta_tot * rh_len;
                 }
             }
+
+            LOG(LOG_LEVEL_INFO, "Delay tau");
             // printf("hR = %.2f\n",sqrt(rtot[0]*rtot[0]+rtot[1]*rtot[1]+rtot[2]*rtot[2]));
             // in the last step, particles with delayed time of formation are set to be produced with
             // a time offset. This offset is concidered to be given as proper time, and the particle
@@ -1317,12 +1336,30 @@ unsigned CECA::GenerateEvent(const unsigned &ThId) {
                 Primary.pop_back();
             } else {
                 PrimoridalUsed = true;
-                GhettoSP_pT_th->Fill(Primary.back()->Cats()->GetPt(), Primary.back()->Cats()->GetTheta());
+                
+                double pt = Primary.back()->Cats()->GetPt();
+                if (std::abs(pt) < EPSILON) {
+                    LOG(LOG_LEVEL_WARN, "pt is too small!");
+                } else {
+                    LOG(LOG_LEVEL_DEBUG, "pt: " + to_string(pt));
+                }
+                
+                double pz = Primary.back()->Cats()->GetPz();
+                if (std::abs(pz) < EPSILON) {
+                    LOG(LOG_LEVEL_WARN, "pz is too small!");
+                } else {
+                    LOG(LOG_LEVEL_DEBUG, "pz: " + to_string(pz));
+                }
+                
+                double theta = Primary.back()->Cats()->GetTheta();
+                LOG(LOG_LEVEL_INFO, "theta: " + to_string(theta));
+
+                GhettoSP_pT_th->Fill(pt, theta);
                 if (Primary.back()->Trepni()->GetName() == ListOfParticles.at(0)) {
-                    GhettoSP_pT_1->Fill(Primary.back()->Cats()->GetPt());
+                    GhettoSP_pT_1->Fill(pt);
                 }
                 if (Primary.back()->Trepni()->GetName() == ListOfParticles.at(1)) {
-                    GhettoSP_pT_2->Fill(Primary.back()->Cats()->GetPt());
+                    GhettoSP_pT_2->Fill(pt);
                 }
             }
         }
@@ -2204,6 +2241,7 @@ unsigned CECA::GenerateEvent(const unsigned &ThId) {
         delete particle;
     }
     // return Permutations.size();
+    LOG(LOG_LEVEL_INFO, "Finished");
     return FemtoPermutations;
 }
 
