@@ -13,6 +13,7 @@
 #include "omp.h"
 #include <unistd.h>
 #include <thread>
+#include <iomanip>
 
 
 CecaParticle::CecaParticle(){
@@ -1235,6 +1236,7 @@ FragCorr = 1;
         //printf(" %u",ID);
         //printf("ud = %u\n",ud);
         boost_v = boost_v+*(Primary.at(ID)->Cats());//
+        LOG(DEBUG, "Calculating boost components. pid: " << ID << "boost: (" << boost_v.GetX() << ", " << boost_v.GetY() << ", " << boost_v.GetZ() << ")");
         prt_cm[ud] = *Primary.at(ID);
         prt_lab[ud] = *Primary.at(ID); 
         //prt_cm[ud].SetCats(Primary.at(ID)->Cats());
@@ -1323,6 +1325,7 @@ FragCorr = 1;
         //works out to 3x mass of the particle
         //this is the definition that leads to Q==Q3
         double Malpha = mu12*alpha_m / 6.;
+        LOG(DEBUG, "Masses: m1 " << m1 << "  m2: " << m2 << "  m3: " << m3 << "arbitrary mass: " << Malpha);
         
         //CatsLorentzVector clv12 = *prt_cm[0].Cats() - *prt_cm[1].Cats();
 
@@ -1421,6 +1424,7 @@ FragCorr = 1;
         double hyp_rad = 0;
         double Q3 = 0;
         //averaged per particle
+        LOG(DEBUG, "Boost components: (" << boost_v.GetX() << ", " << boost_v.GetY() << ", " << boost_v.GetZ() << ")");
         double mT = boost_v.GetMt()/3.;
         for(unsigned uv=0; uv<6; uv++){
           hyp_rad+=v_rho[uv]*v_rho[uv];
@@ -1459,6 +1463,9 @@ FragCorr = 1;
           Ghetto_kstar_rstar_mT->Fill(Q3,hyp_rad,mT);
           counter_3++;
         //}
+        LOG(DEBUG, "Triplet: Q3: " << std::setprecision(2) << Q3
+          << "  hyp_rad: " << std::setprecision(2) << hyp_rad
+          << "  mT: " << std::setprecision(2) << mT);
         static int counter_3f = 0;
         if(Q3<FemtoLimit){
           //GhettoFemto_mT_rstar->Fill(mT,rho_val);
@@ -1493,7 +1500,7 @@ FragCorr = 1;
 
         }
 */
-
+        LOG(DEBUG, "End of 3B calculation");
       }
 
 
