@@ -1320,13 +1320,13 @@ FragCorr = 1;
         double mu3_12 = m3*(m1+m2)/mtot; // Reduced mass of particle 3 wrt 1 and 2
 
         // Based on Eq. 1.80 of 3B notes
-        double alpha_m = 4 * m3 * m3 / pow(m1 + m3, 2. ) + 4 * m3 * m3 / pow(m2 + m3, 2.) + 4;
+        double alpha = 4 * m3 * m3 / pow(m1 + m3, 2. ) + 4 * m3 * m3 / pow(m2 + m3, 2.) + 4;
         double beta = 4 * m3 * mtot / (m1 + m2) * (m2 / pow(m2 + m3, 2) - m1 / pow(m1 + m3, 2));
         double gamma = 4 * mtot * mtot / pow(m1 + m2, 2) *  (m1 * m1 / pow(m1 + m3, 2) + m2 * m2 / pow(m2 + m3, 2));
 
         // Arbitrary mass. For identical particles this definition works out to 3x mass of the particle.
         // This is the definition that leads to Q==Q3
-        double Malpha = mu12*alpha_m / 6.;
+        double Malpha = mu12 * alpha / 6.;
         
         LOG(DEBUG, "Masses: m1 " << m1 << "  m2: " << m2 << "  m3: " << m3 << "  arbitrary mass: " << Malpha);
   
@@ -1371,7 +1371,7 @@ FragCorr = 1;
         double Q = sqrt(Malpha / mu12 * dot(v_k12, v_k12) + Malpha / mu3_12 * dot(v_k3_12, v_k3_12));
 
         // Based on Eq. 1.79 of 3B notes
-        double Q3 = sqrt(alpha_m * dot(v_k12, v_k12) + 2 * beta * dot(v_k12, v_k3_12) + gamma * dot(v_k3_12, v_k3_12));
+        double Q3 = sqrt(alpha * dot(v_k12, v_k12) + 2 * beta * dot(v_k12, v_k3_12) + gamma * dot(v_k3_12, v_k3_12));
         LOG(DEBUG, "Q: " << Q << "  Q3: " << Q3);
 
         if(Q<FemtoLimit){
