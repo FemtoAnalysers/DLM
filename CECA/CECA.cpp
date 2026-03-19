@@ -16,6 +16,7 @@
 #include <array>
 #include <iomanip>
 
+auto dot =[](std::array<double, 3> v1, std::array<double, 3> v2){return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];};
 
 CecaParticle::CecaParticle(){
   cats = new CatsParticle();
@@ -1318,12 +1319,16 @@ FragCorr = 1;
         double mu12 = m1*m2/(m1+m2); // Reduced mass of particles 1 and 2
         double mu3_12 = m3*(m1+m2)/mtot; // Reduced mass of particle 3 wrt 1 and 2
 
+        // Based on Eq. 1.80 of 3B notes
+        double alpha_m = 4 * m3 * m3 / pow(m1 + m3, 2. ) + 4 * m3 * m3 / pow(m2 + m3, 2.) + 4;
+        double beta = 4 * m3 * mtot / (m1 + m2) * (m2 / pow(m2 + m3, 2) - m1 / pow(m1 + m3, 2));
+        double gamma = 4 * mtot * mtot / pow(m1 + m2, 2) *  (m1 * m1 / pow(m1 + m3, 2) + m2 * m2 / pow(m2 + m3, 2));
+
         // Arbitrary mass. For identical particles this definition works out to 3x mass of the particle.
         // This is the definition that leads to Q==Q3
-        double alpha_m = 4*m3*m3/pow(m3+m1,2.) + 4*m3*m3/pow(m3+m2,2.) + 4;
         double Malpha = mu12*alpha_m / 6.;
         
-        LOG(DEBUG, "Masses: m1 " << m1 << "  m2: " << m2 << "  m3: " << m3 << "arbitrary mass: " << Malpha);
+        LOG(DEBUG, "Masses: m1 " << m1 << "  m2: " << m2 << "  m3: " << m3 << "  arbitrary mass: " << Malpha);
   
         std::array<double, 3> v_r1 = {prt_cm[0].Cats()->GetX(), prt_cm[0].Cats()->GetY(), prt_cm[0].Cats()->GetZ()};
         std::array<double, 3> v_r2 = {prt_cm[1].Cats()->GetX(), prt_cm[1].Cats()->GetY(), prt_cm[1].Cats()->GetZ()};
@@ -1340,8 +1345,8 @@ FragCorr = 1;
         }
 
         // Compute hyper-radius
-        double r12_squared = v_r12[0] * v_r12[0] + v_r12[1] * v_r12[1] + v_r12[2] * v_r12[2];
-        double r3_12_squared = v_r3_12[0] * v_r3_12[0] + v_r3_12[1] * v_r3_12[1] + v_r3_12[2] * v_r3_12[2];
+        double r12_squared = dot(v_r12, v_r12);
+        double r3_12_squared = dot(v_r3_12, v_r3_12);
         double hyp_rad = sqrt((mu12 * r12_squared + mu3_12 * r3_12_squared) / Malpha);
         double hyp_angle = atan2(sqrt(mu3_12 * r3_12_squared ), sqrt(mu12 * r12_squared));
 
@@ -1353,11 +1358,10 @@ FragCorr = 1;
         std::array<double, 3> v_k12;
         std::array<double, 3> v_k3_12; 
         for(unsigned uv=0; uv<3; uv++){
-          v_k12[uv] = (m2*v_p1[uv]-m1*v_p2[uv])/(m1+m2);
-          v_k3_12[uv] = ((m1+m2)*v_p3[uv]-m3*(v_p1[uv]+v_p2[uv]))/(m1+m2+m3);
+          v_k12[uv] = (m2 * v_p1[uv] - m1 * v_p2[uv]) / (m1+m2);
+          v_k3_12[uv] = ((m1 + m2) * v_p3[uv] - m3 * (v_p1[uv] + v_p2[uv])) / (m1 + m2 + m3);
         }
 
-        //hyperradius
         std::array<double, 6> v_Q3;
         for(unsigned uv=0; uv<3; uv++){
           v_Q3[uv] = sqrt(Malpha/mu12)*v_k12[uv];
@@ -1369,14 +1373,17 @@ FragCorr = 1;
         //averaged per particle
         LOG(DEBUG, "Boost components: (" << boost_v.GetX() << ", " << boost_v.GetY() << ", " << boost_v.GetZ() << ")");
         double mT = boost_v.GetMt()/3.;
-        
-        double Q3 = 0;
-        for(unsigned uv=0; uv<6; uv++){
-          Q3+=v_Q3[uv]*v_Q3[uv];
-        }
-        Q3 = sqrt(Q3);
 
-        if(Q3<FemtoLimit){
+        double Q = 0;
+        for(unsigned uv=0; uv<6; uv++){
+          Q+=v_Q3[uv]*v_Q3[uv];
+        }
+        Q = sqrt(Q);
+
+        double Q3 = sqrt(alpha_m * dot(v_k12, v_k12) + 2 * beta * dot(v_k12, v_k3_12) + gamma * dot(v_k3_12, v_k3_12));
+        LOG(DEBUG, "Q: " << Q << "  Q3: " << Q3);
+
+        if(Q<FemtoLimit){
           FemtoPermutations++;
         }
 
@@ -1387,14 +1394,14 @@ FragCorr = 1;
         NumPrims += prt_cm[1].IsUsefulProduct();
         NumPrims += prt_cm[2].IsUsefulProduct();
         static int counter_3 = 0;
-        Ghetto_kstar_rstar->Fill(Q3,hyp_rad);
-        Ghetto_kstar_rstar_mT->Fill(Q3,hyp_rad,mT);
+        Ghetto_kstar_rstar->Fill(Q,hyp_rad);
+        Ghetto_kstar_rstar_mT->Fill(Q,hyp_rad,mT);
         counter_3++;
-        LOG(DEBUG, "Triplet: Q3: " << std::setprecision(2) << Q3
+        LOG(DEBUG, "Triplet: Q: " << std::setprecision(2) << Q
           << "  hyp_rad: " << std::setprecision(2) << hyp_rad
           << "  mT: " << std::setprecision(2) << mT);
         static int counter_3f = 0;
-        if(Q3<FemtoLimit){
+        if(Q<FemtoLimit){
           GhettoFemto_mT_rstar->Fill(mT,hyp_rad);
           counter_3f++;
         }
