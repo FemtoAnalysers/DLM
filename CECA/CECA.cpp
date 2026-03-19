@@ -13,6 +13,7 @@
 #include "omp.h"
 #include <unistd.h>
 #include <thread>
+#include <array>
 #include <iomanip>
 
 
@@ -1314,136 +1315,66 @@ FragCorr = 1;
         double m2 = prt_cm[1].Cats()->GetMass();
         double m3 = prt_cm[2].Cats()->GetMass();
         double mtot = m1 + m2 + m3;
-        //reduced mass 12, as in the notes
-        //note, that in c++ we will have actally 01
-        double mu12 = m1*m2/(m1+m2);
+        double mu12 = m1*m2/(m1+m2); // Reduced mass of particles 1 and 2
+        double mu3_12 = m3*(m1+m2)/mtot; // Reduced mass of particle 3 wrt 1 and 2
+
+        // Arbitrary mass. For identical particles this definition works out to 3x mass of the particle.
+        // This is the definition that leads to Q==Q3
         double alpha_m = 4*m3*m3/pow(m3+m1,2.) + 4*m3*m3/pow(m3+m2,2.) + 4;
-        //double beta_m = 4*m3*mtot/(m1+m2)*(m2/pow(m2+m3,2.)-m1/pow(m1+m3,2.));
-        //double gamma_m = 4*pow(mtot/(m1+m2),2.)*(pow(m1/(m1+m3),2.)+pow(m2/(m2+m3),2.));
-        double mu3_12 = m3*(m1+m2)/mtot;
-        //arbitrary mass. For identical particles this definition
-        //works out to 3x mass of the particle
-        //this is the definition that leads to Q==Q3
         double Malpha = mu12*alpha_m / 6.;
+        
         LOG(DEBUG, "Masses: m1 " << m1 << "  m2: " << m2 << "  m3: " << m3 << "arbitrary mass: " << Malpha);
-        
-        //CatsLorentzVector clv12 = *prt_cm[0].Cats() - *prt_cm[1].Cats();
+  
+        std::array<double, 3> v_r1 = {prt_cm[0].Cats()->GetX(), prt_cm[0].Cats()->GetY(), prt_cm[0].Cats()->GetZ()};
+        std::array<double, 3> v_r2 = {prt_cm[1].Cats()->GetX(), prt_cm[1].Cats()->GetY(), prt_cm[1].Cats()->GetZ()};
+        std::array<double, 3> v_r3 = {prt_cm[2].Cats()->GetX(), prt_cm[2].Cats()->GetY(), prt_cm[2].Cats()->GetZ()};
 
-        std::vector<double> v_r1 = {prt_cm[0].Cats()->GetX(), prt_cm[0].Cats()->GetY(), prt_cm[0].Cats()->GetZ()};
-        std::vector<double> v_r2 = {prt_cm[1].Cats()->GetX(), prt_cm[1].Cats()->GetY(), prt_cm[1].Cats()->GetZ()};
-        std::vector<double> v_r3 = {prt_cm[2].Cats()->GetX(), prt_cm[2].Cats()->GetY(), prt_cm[2].Cats()->GetZ()};
-        //the pCM is zero, but clearcly not the rCM. The def below I got from ChatGPT
-        std::vector<double> v_rCM;
-        
-
-        std::vector<double> v_p1 = {prt_cm[0].Cats()->GetPx(), prt_cm[0].Cats()->GetPy(), prt_cm[0].Cats()->GetPz()};
-        std::vector<double> v_p2 = {prt_cm[1].Cats()->GetPx(), prt_cm[1].Cats()->GetPy(), prt_cm[1].Cats()->GetPz()};
-        std::vector<double> v_p3 = {prt_cm[2].Cats()->GetPx(), prt_cm[2].Cats()->GetPy(), prt_cm[2].Cats()->GetPz()};
-
-        std::vector<double> v_r12;
-        std::vector<double> v_k12;
-        for(unsigned uv=0; uv<3; uv++){
-          v_rCM.push_back((m1*v_r1[uv]+m2*v_r2[uv]+m3*v_r3[uv])/mtot);
-        }
-        //subtract the CM
-        for(unsigned uv=0; uv<3; uv++){
-          v_r1[uv] -= v_rCM[uv];
-          v_r2[uv] -= v_rCM[uv];
-          v_r3[uv] -= v_rCM[uv];
-        }
-        for(unsigned uv=0; uv<3; uv++){
-          v_r12.push_back(v_r1[uv]-v_r2[uv]);
-          v_k12.push_back((m2*v_p1[uv]-m1*v_p2[uv])/(m1+m2));
-          //v_rCM.push_back((m1*v_r1[uv]+m2*v_r2[uv]+m3*v_r3[uv])/mtot);
+        // Computation of Jacobi coordinates
+        std::array<double, 3> v_rCM;
+        std::array<double, 3> v_r12;
+        std::array<double, 3> v_r3_12;
+        for (int i = 0; i < 3; i++) {
+          v_rCM[i] = (m1 * v_r1[i] + m2 * v_r2[i] + m3 * v_r3[i]) / mtot;
+          v_r12[i] = v_r1[i] - v_r2[i];
+          v_r3_12[i] = -m1 / (m1+m2) * v_r1[i] - m2 / (m1 + m2) * v_r2[i] + v_r3[i];
         }
 
+        // Compute hyper-radius
+        double r12_squared = v_r12[0] * v_r12[0] + v_r12[1] * v_r12[1] + v_r12[2] * v_r12[2];
+        double r3_12_squared = v_r3_12[0] * v_r3_12[0] + v_r3_12[1] * v_r3_12[1] + v_r3_12[2] * v_r3_12[2];
+        double hyp_rad = sqrt((mu12 * r12_squared + mu3_12 * r3_12_squared) / Malpha);
+        double hyp_angle = atan2(sqrt(mu3_12 * r3_12_squared ), sqrt(mu12 * r12_squared));
+
+        std::array<double, 3> v_p1 = {prt_cm[0].Cats()->GetPx(), prt_cm[0].Cats()->GetPy(), prt_cm[0].Cats()->GetPz()};
+        std::array<double, 3> v_p2 = {prt_cm[1].Cats()->GetPx(), prt_cm[1].Cats()->GetPy(), prt_cm[1].Cats()->GetPz()};
+        std::array<double, 3> v_p3 = {prt_cm[2].Cats()->GetPx(), prt_cm[2].Cats()->GetPy(), prt_cm[2].Cats()->GetPz()};
+
+        // Computation of conjugated momenta of Jacobi coordinates
+        std::array<double, 3> v_k12;
+        std::array<double, 3> v_k3_12; 
         for(unsigned uv=0; uv<3; uv++){
-          v_rCM[uv] = ((m1*v_r1[uv]+m2*v_r2[uv]+m3*v_r3[uv])/mtot);
+          v_k12[uv] = (m2*v_p1[uv]-m1*v_p2[uv])/(m1+m2);
+          v_k3_12[uv] = ((m1+m2)*v_p3[uv]-m3*(v_p1[uv]+v_p2[uv]))/(m1+m2+m3);
         }
 
-        //printf("v_rCM = %.3f %.3f %.3f\n", v_rCM[0], v_rCM[1], v_rCM[2]);
-        //printf("mu12/Malpha = %.3f; mu3_12/Malpha = %.3f; Malpha = %.3f\n",mu12/Malpha, mu3_12/Malpha, Malpha);
-
-
-
-
-        std::vector<double> v_r3_12; 
-        std::vector<double> v_k3_12; 
-        for(unsigned uv=0; uv<3; uv++){
-          v_r3_12.push_back(v_r3[uv]-m1/(m1+m2)*v_r1[uv]-m2/(m1+m2)*v_r2[uv]);
-          v_k3_12.push_back(((m1+m2)*v_p3[uv]-m3*(v_p1[uv]+v_p2[uv]))/(m1+m2+m3));
-        }
         //hyperradius
-        std::vector<double> v_rho;
-        std::vector<double> v_Q3;
+        std::array<double, 6> v_Q3;
         for(unsigned uv=0; uv<3; uv++){
-          v_rho.push_back(sqrt(mu12/Malpha)*v_r12[uv]);
-          v_Q3.push_back(sqrt(Malpha/mu12)*v_k12[uv]);
+          v_Q3[uv] = sqrt(Malpha/mu12)*v_k12[uv];
         }
         for(unsigned uv=3; uv<6; uv++){
-          v_rho.push_back(sqrt(mu3_12/Malpha)*v_r3_12[uv-3]);
-          v_Q3.push_back(sqrt(Malpha/mu3_12)*v_k3_12[uv-3]);  
+          v_Q3[uv] = sqrt(Malpha/mu3_12)*v_k3_12[uv-3];
         }
 
-        //chat gpt style
-        double rho_val = 0;
-        for (size_t i = 0; i < 3; ++i) {
-          rho_val += m1 * pow(v_r1[i] - v_rCM[i], 2);
-          rho_val += m2 * pow(v_r2[i] - v_rCM[i], 2);
-          rho_val += m3 * pow(v_r3[i] - v_rCM[i], 2);
-         }      
-         rho_val = sqrt(rho_val/mtot);  
-            
-        //double r12 = 0;
-        //for(unsigned uv=0; uv<3; uv++) r12 += pow(v_r1.at(uv) - v_r2.at(uv), 2.);
-        //r12 = sqrt(r12);
-
-        //double r3_12 = 0;
-        //for(unsigned uv=0; uv<3; uv++){
-        //  r3_12 += pow(v_r3.at(uv) - (m1*v_r1.at(uv)+m2*v_r2.at(uv))/(m1+m2), 2.);
-        //}
-        //r3_12 = sqrt(r3_12);
-
-        //double k12 = 0;
-        //for(unsigned uv=0; uv<3; uv++) k12 += pow(m2*v_p1.at(uv) - m1*v_p2.at(uv), 2.);
-        //k12 = sqrt(k12)/(m1+m2);
-
-        //double k3_12 = 0;
-        //for(unsigned uv=0; uv<3; uv++){
-        //  k3_12 += pow((m1+m2)*v_p3.at(uv)-m3*(v_p1.at(uv)+v_p2.at(uv)), 2.);
-        //}
-        //k3_12 = sqrt(k3_12)/mtot;
-
-        //double dot_k12_k3_12 = 0;
-        //for(unsigned uv=0; uv<3; uv++){
-        //  dot_k12_k3_12 += (m2*v_p1.at(uv) - m1*v_p2.at(uv))/(m1+m2) * ((m1+m2)*v_p3.at(uv)-m3*(v_p1.at(uv)+v_p2.at(uv)))/mtot;
-        //}
-
-        //double hyp_rad = sqrt(mu12/Malpha*r12*r12 + mu3_12/Malpha*r3_12*r3_12);
-        //double Q3 = sqrt(alpha_m*k12*k12 + 2*beta_m*dot_k12_k3_12 + gamma_m*k3_12*k3_12);
-        double hyp_rad = 0;
-        double Q3 = 0;
         //averaged per particle
         LOG(DEBUG, "Boost components: (" << boost_v.GetX() << ", " << boost_v.GetY() << ", " << boost_v.GetZ() << ")");
         double mT = boost_v.GetMt()/3.;
+        
+        double Q3 = 0;
         for(unsigned uv=0; uv<6; uv++){
-          hyp_rad+=v_rho[uv]*v_rho[uv];
           Q3+=v_Q3[uv]*v_Q3[uv];
         }
-        hyp_rad = sqrt(hyp_rad);
         Q3 = sqrt(Q3);
-        if(Q3<1000){
-          //if(hyp_rad<0.1){
-            //printf("hyp_rad, rho_val, ratio, Q3, mT = %.3f %.3f %.3f %.3f %.3f\n",hyp_rad,rho_val,rho_val/hyp_rad,Q3,mT);
-
-              //printf("CM: %f %f %f\n", v_rCM[0], v_rCM[1], v_rCM[2]);
-              //printf("  %f %f %f\n", v_r1[0], v_r1[1], v_r1[2]);
-              //printf("  %f %f %f\n", v_r2[0], v_r2[1], v_r2[2]);
-              //printf("  %f %f %f\n", v_r3[0], v_r3[1], v_r3[2]);
-
-          //}
-
-        }
 
         if(Q3<FemtoLimit){
           FemtoPermutations++;
@@ -1451,55 +1382,23 @@ FragCorr = 1;
 
         #pragma omp critical
         {
-        //Ghetto_kstar_rstar->Fill(Q3,rho_val);
-        //Ghetto_kstar_rstar_mT->Fill(Q3,rho_val,mT);
         int NumPrims = 0;
         NumPrims += prt_cm[0].IsUsefulProduct();
         NumPrims += prt_cm[1].IsUsefulProduct();
         NumPrims += prt_cm[2].IsUsefulProduct();
         static int counter_3 = 0;
-        //if(NumPrims==3){
-          Ghetto_kstar_rstar->Fill(Q3,hyp_rad);
-          Ghetto_kstar_rstar_mT->Fill(Q3,hyp_rad,mT);
-          counter_3++;
-        //}
+        Ghetto_kstar_rstar->Fill(Q3,hyp_rad);
+        Ghetto_kstar_rstar_mT->Fill(Q3,hyp_rad,mT);
+        counter_3++;
         LOG(DEBUG, "Triplet: Q3: " << std::setprecision(2) << Q3
           << "  hyp_rad: " << std::setprecision(2) << hyp_rad
           << "  mT: " << std::setprecision(2) << mT);
         static int counter_3f = 0;
         if(Q3<FemtoLimit){
-          //GhettoFemto_mT_rstar->Fill(mT,rho_val);
           GhettoFemto_mT_rstar->Fill(mT,hyp_rad);
           counter_3f++;
         }
-        //if(counter_3%10==0)
-        //  printf("%i %i\n",counter_3,counter_3f);
         }
-        
-/*
-        if(Q3<500){
-        printf("Malpha = %f\n",Malpha);
-        printf("k12 = %.0f; Q3 = %.0f; HR = %.2f\n", k12, Q3, hyp_rad);
-
-        CatsLorentzVector cm_rel_12 = *prt_cm[1].Cats()-*prt_cm[0].Cats();
-        double kstar12 = 0.5*cm_rel_12.GetP();
-        double rstar12 = cm_rel_12.GetR();
-
-        CatsLorentzVector cm_rel_13 = *prt_cm[2].Cats()-*prt_cm[0].Cats();
-        double kstar13 = 0.5*cm_rel_13.GetP();
-        double rstar13 = cm_rel_13.GetR();
-
-        CatsLorentzVector cm_rel_23 = *prt_cm[2].Cats()-*prt_cm[1].Cats();
-        double kstar23 = 0.5*cm_rel_23.GetP();
-        double rstar23 = cm_rel_23.GetR();        
-        printf("12: kstar = %.0f; rstar = %.2f\n", kstar12, rstar12);
-        printf("13: kstar = %.0f; rstar = %.2f\n", kstar13, rstar13);
-        printf("23: kstar = %.0f; rstar = %.2f\n", kstar23, rstar23);
-        double mean_r = (rstar12+rstar13+rstar23)/3.;
-        printf("HR ghetto/true = %.3f\n",(mean_r/sqrt(3.))/hyp_rad);
-
-        }
-*/
         LOG(DEBUG, "End of 3B calculation");
       }
 
