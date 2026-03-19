@@ -1374,7 +1374,7 @@ FragCorr = 1;
         double Q3 = sqrt(alpha * dot(v_k12, v_k12) + 2 * beta * dot(v_k12, v_k3_12) + gamma * dot(v_k3_12, v_k3_12));
         LOG(DEBUG, "Q: " << Q << "  Q3: " << Q3);
 
-        if(Q<FemtoLimit){
+        if(Q3<FemtoLimit){
           FemtoPermutations++;
         }
 
@@ -1385,14 +1385,14 @@ FragCorr = 1;
         NumPrims += prt_cm[1].IsUsefulProduct();
         NumPrims += prt_cm[2].IsUsefulProduct();
         static int counter_3 = 0;
-        Ghetto_kstar_rstar->Fill(Q,hyp_rad);
-        Ghetto_kstar_rstar_mT->Fill(Q,hyp_rad,mT);
+        Ghetto_kstar_rstar->Fill(Q3,hyp_rad);
+        Ghetto_kstar_rstar_mT->Fill(Q3,hyp_rad,mT);
         counter_3++;
         LOG(DEBUG, "Triplet: Q: " << std::setprecision(2) << Q
           << "  hyp_rad: " << std::setprecision(2) << hyp_rad
           << "  mT: " << std::setprecision(2) << mT);
         static int counter_3f = 0;
-        if(Q<FemtoLimit){
+        if(Q3<FemtoLimit){
           GhettoFemto_mT_rstar->Fill(mT,hyp_rad);
           counter_3f++;
         }
