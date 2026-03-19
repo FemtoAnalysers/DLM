@@ -1348,7 +1348,7 @@ FragCorr = 1;
         double r12_squared = dot(v_r12, v_r12);
         double r3_12_squared = dot(v_r3_12, v_r3_12);
         double hyp_rad = sqrt((mu12 * r12_squared + mu3_12 * r3_12_squared) / Malpha);
-        double hyp_angle = atan2(sqrt(mu3_12 * r3_12_squared ), sqrt(mu12 * r12_squared));
+        double hyp_angle = atan2(sqrt(mu3_12 * r3_12_squared), sqrt(mu12 * r12_squared));
 
         std::array<double, 3> v_p1 = {prt_cm[0].Cats()->GetPx(), prt_cm[0].Cats()->GetPy(), prt_cm[0].Cats()->GetPz()};
         std::array<double, 3> v_p2 = {prt_cm[1].Cats()->GetPx(), prt_cm[1].Cats()->GetPy(), prt_cm[1].Cats()->GetPz()};
@@ -1362,24 +1362,15 @@ FragCorr = 1;
           v_k3_12[uv] = ((m1 + m2) * v_p3[uv] - m3 * (v_p1[uv] + v_p2[uv])) / (m1 + m2 + m3);
         }
 
-        std::array<double, 6> v_Q3;
-        for(unsigned uv=0; uv<3; uv++){
-          v_Q3[uv] = sqrt(Malpha/mu12)*v_k12[uv];
-        }
-        for(unsigned uv=3; uv<6; uv++){
-          v_Q3[uv] = sqrt(Malpha/mu3_12)*v_k3_12[uv-3];
-        }
-
-        //averaged per particle
         LOG(DEBUG, "Boost components: (" << boost_v.GetX() << ", " << boost_v.GetY() << ", " << boost_v.GetZ() << ")");
+
+        // Averaged per particle
         double mT = boost_v.GetMt()/3.;
 
-        double Q = 0;
-        for(unsigned uv=0; uv<6; uv++){
-          Q+=v_Q3[uv]*v_Q3[uv];
-        }
-        Q = sqrt(Q);
+        // Based on Eq. 1.15 of 3B notes
+        double Q = sqrt(Malpha / mu12 * dot(v_k12, v_k12) + Malpha / mu3_12 * dot(v_k3_12, v_k3_12));
 
+        // Based on Eq. 1.79 of 3B notes
         double Q3 = sqrt(alpha_m * dot(v_k12, v_k12) + 2 * beta * dot(v_k12, v_k3_12) + gamma * dot(v_k3_12, v_k3_12));
         LOG(DEBUG, "Q: " << Q << "  Q3: " << Q3);
 
