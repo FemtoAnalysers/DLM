@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - CHANGELOG.md file
+- some histograms in CECA for 3B femto
 
 ### Fixed
 - Use Q3 instead of Q in 3B calculations

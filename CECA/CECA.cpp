@@ -164,6 +164,10 @@ CECA::CECA(const TREPNI& database,const std::vector<std::string>& list_of_partic
   Ghetto_RadMin = 0;
   Ghetto_RadMax = 128;
 
+  // 3B femto
+  dlmR12R312 = NULL;
+  dlmPhiVsRho = NULL;
+
   Ghetto_rstar = NULL;
   Ghetto_rcore = NULL;
   GhettOld_rstar = NULL;
@@ -263,6 +267,9 @@ CECA::~CECA(){
   //CLV.clear();
 
   ///////////////////////////////////////////////
+  if(dlmR12R312){delete dlmR12R312; dlmR12R312=NULL;}
+  if(dlmPhiVsRho){delete dlmPhiVsRho; dlmPhiVsRho=NULL;}
+
   if(Ghetto_rstar){delete Ghetto_rstar; Ghetto_rstar=NULL;}
   if(Ghetto_rcore){delete Ghetto_rcore; Ghetto_rcore=NULL;}
   if(GhettOld_rstar){delete GhettOld_rstar; GhettOld_rstar=NULL;}
@@ -1393,6 +1400,8 @@ FragCorr = 1;
           << "  mT: " << std::setprecision(2) << mT);
         static int counter_3f = 0;
         if(Q3<FemtoLimit){
+          dlmR12R312->Fill(sqrt(r12_squared), r3_12_squared);
+          dlmPhiVsRho->Fill(hyp_rad, hyp_angle);
           GhettoFemto_mT_rstar->Fill(mT,hyp_rad);
           counter_3f++;
         }
@@ -2355,6 +2364,20 @@ if(!prim1&&false){
 }
 
 void CECA::GhettoInit(){
+  // 3B histograms
+  if(dlmR12R312) delete dlmR12R312;
+  dlmR12R312 = new DLM_Histo<float>();
+  dlmR12R312->SetUp(2);
+  dlmR12R312->SetUp(0, 200, 0, 20);
+  dlmR12R312->SetUp(1, 200, 0, 20);
+  dlmR12R312->Initialize();
+  
+  if(dlmPhiVsRho) delete dlmPhiVsRho;
+  dlmPhiVsRho = new DLM_Histo<float>();
+  dlmPhiVsRho->SetUp(2);
+  dlmPhiVsRho->SetUp(0, 200, 0, 20);
+  dlmPhiVsRho->SetUp(1, 200, 0, M_PI / 2);
+  dlmPhiVsRho->Initialize();
 
   if(Ghetto_RP_AngleRcP1) delete Ghetto_RP_AngleRcP1;
   Ghetto_RP_AngleRcP1 = new DLM_Histo<float>();
