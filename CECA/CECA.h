@@ -216,6 +216,9 @@ public:
   void GhettoTest1(const unsigned NumPairs, const float r_SP, const float p_SP);
   //CatsParticle* GhettoDecay(CatsParticle& particle, const float mass1, const float mass2);
 
+  DLM_Histo<float>* GetR12R312() const { return this->dlmR12R312; };
+  DLM_Histo<float>* GetPhiVsRho() const { return this->dlmPhiVsRho; };
+
   unsigned Ghetto_NumMtBins;
   double Ghetto_MtMin;
   double Ghetto_MtMax;
@@ -398,6 +401,10 @@ unsigned GenerateEventTEMP();
   //if zero, NO timeout
   unsigned GlobalTimeout;
   //
+
+  // Histograms specific to 3B femto
+  DLM_Histo<float>* dlmR12R312; // 2D hist. with Jacobi coordinates
+  DLM_Histo<float>* dlmPhiVsRho; // 2D hist. with hyper-spherical coordinates
 
   void GhettoInit();
 
