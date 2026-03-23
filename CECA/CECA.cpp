@@ -1245,7 +1245,7 @@ FragCorr = 1;
         //printf(" %u",ID);
         //printf("ud = %u\n",ud);
         boost_v = boost_v+*(Primary.at(ID)->Cats());//
-        LOG(DEBUG, "Calculating boost components. pid: " << ID << "boost: (" << boost_v.GetX() << ", " << boost_v.GetY() << ", " << boost_v.GetZ() << ")");
+        LOG(DEBUG, "Calculating boost components. pid: " << ID << "  boost: (" << boost_v.GetPx() << ", " << boost_v.GetPy() << ", " << boost_v.GetPz() << ")");
         prt_cm[ud] = *Primary.at(ID);
         prt_lab[ud] = *Primary.at(ID); 
         //prt_cm[ud].SetCats(Primary.at(ID)->Cats());
@@ -1369,10 +1369,13 @@ FragCorr = 1;
           v_k3_12[uv] = ((m1 + m2) * v_p3[uv] - m3 * (v_p1[uv] + v_p2[uv])) / (m1 + m2 + m3);
         }
 
-        LOG(DEBUG, "Boost components: (" << boost_v.GetX() << ", " << boost_v.GetY() << ", " << boost_v.GetZ() << ")");
-
         // Averaged per particle
         double mT = boost_v.GetMt()/3.;
+
+        LOG(DEBUG, "p1 components: (" << v_p1[0] << ", " << v_p1[0] << ", " << v_p1[0] << ")");
+        LOG(DEBUG, "p2 components: (" << v_p2[1] << ", " << v_p2[1] << ", " << v_p2[1] << ")");
+        LOG(DEBUG, "p3 components: (" << v_p3[2] << ", " << v_p3[2] << ", " << v_p3[2] << ")");
+        LOG(DEBUG, "Boost components: (" << boost_v.GetPx() << ", " << boost_v.GetPy() << ", " << boost_v.GetPz() << ") --> mT: " << mT);
 
         // Based on Eq. 1.15 of 3B notes
         double Q = sqrt(Malpha / mu12 * dot(v_k12, v_k12) + Malpha / mu3_12 * dot(v_k3_12, v_k3_12));
