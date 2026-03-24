@@ -222,6 +222,7 @@ CECA::CECA(const TREPNI& database,const std::vector<std::string>& list_of_partic
   dlmR12R312 = NULL;
   dlmPhiVsRho = NULL;
   dlmKStarInTriplets = NULL;
+  dlmRStarInTriplets = NULL;
 
   Ghetto_rstar = NULL;
   Ghetto_rcore = NULL;
@@ -325,6 +326,7 @@ CECA::~CECA(){
   if(dlmR12R312){delete dlmR12R312; dlmR12R312=NULL;}
   if(dlmPhiVsRho){delete dlmPhiVsRho; dlmPhiVsRho=NULL;}
   if(dlmKStarInTriplets){delete dlmKStarInTriplets; dlmKStarInTriplets=NULL;}
+  if(dlmRStarInTriplets){delete dlmRStarInTriplets; dlmRStarInTriplets=NULL;}
 
   if(Ghetto_rstar){delete Ghetto_rstar; Ghetto_rstar=NULL;}
   if(Ghetto_rcore){delete Ghetto_rcore; Ghetto_rcore=NULL;}
@@ -1485,10 +1487,20 @@ FragCorr = 1;
           double kstar12 = ComputeKstar(*prt_lab[0].Cats(), *prt_lab[1].Cats());
           double kstar13 = ComputeKstar(*prt_lab[0].Cats(), *prt_lab[2].Cats());
           double kstar23 = ComputeKstar(*prt_lab[1].Cats(), *prt_lab[2].Cats());
+
+          // Non-relativistic calculation
+          double rStar12 = sqrt(pow(v_r1[0] - v_r2[0], 2) + pow(v_r1[1] - v_r2[1], 2) + pow(v_r1[2] - v_r2[2], 2));
+          double rStar13 = sqrt(pow(v_r1[0] - v_r3[0], 2) + pow(v_r1[1] - v_r3[1], 2) + pow(v_r1[2] - v_r3[2], 2));
+          double rStar23 = sqrt(pow(v_r2[0] - v_r3[0], 2) + pow(v_r2[1] - v_r3[1], 2) + pow(v_r2[2] - v_r3[2], 2));
+          
           if (true) { // TODO implement case for different particles
             dlmKStarInTriplets->Fill(kstar12);
             dlmKStarInTriplets->Fill(kstar13);
             dlmKStarInTriplets->Fill(kstar23);
+
+            dlmRStarInTriplets->Fill(rStar12);
+            dlmRStarInTriplets->Fill(rStar13);
+            dlmRStarInTriplets->Fill(rStar23);
           }
         }
         }
@@ -2489,6 +2501,28 @@ void CECA::GhettoInit(){
     }
   }
 
+  if(dlmRStarInTriplets) delete dlmRStarInTriplets;
+  if (ListOfParticles.size() == 3) {
+    if(ListOfParticles[0] == ListOfParticles[1] && ListOfParticles[1] == ListOfParticles[2]) {
+      dlmRStarInTriplets = new DLM_Histo<float>();
+      dlmRStarInTriplets->SetUp(1);
+      dlmRStarInTriplets->SetUp(0, 200, 0, 20);
+      dlmRStarInTriplets->Initialize();
+    } else if (ListOfParticles[0] != ListOfParticles[1] && ListOfParticles[1] != ListOfParticles[2]) {
+      dlmRStarInTriplets = new DLM_Histo<float>();
+      dlmRStarInTriplets->SetUp(3);
+      dlmRStarInTriplets->SetUp(0, 200, 0, 20);
+      dlmRStarInTriplets->SetUp(1, 200, 0, 20);
+      dlmRStarInTriplets->SetUp(2, 200, 0, 20);
+      dlmRStarInTriplets->Initialize();
+    } else {
+      dlmRStarInTriplets = new DLM_Histo<float>();
+      dlmRStarInTriplets->SetUp(2);
+      dlmRStarInTriplets->SetUp(0, 200, 0, 20);
+      dlmRStarInTriplets->SetUp(1, 200, 0, 20);
+      dlmRStarInTriplets->Initialize();
+    }
+  }
   if(Ghetto_RP_AngleRcP1) delete Ghetto_RP_AngleRcP1;
   Ghetto_RP_AngleRcP1 = new DLM_Histo<float>();
   Ghetto_RP_AngleRcP1->SetUp(1);
