@@ -232,6 +232,7 @@ public:
 
   DLM_Histo<float>* GetR12R312() const { return this->dlmR12R312; };
   DLM_Histo<float>* GetPhiVsRho() const { return this->dlmPhiVsRho; };
+  DLM_Histo<float>* GetKStarInTriplets() const { return this->dlmKStarInTriplets; };
 
   unsigned Ghetto_NumMtBins;
   double Ghetto_MtMin;
@@ -420,6 +421,7 @@ unsigned GenerateEventTEMP();
   // Histograms specific to 3B femto
   DLM_Histo<float>* dlmR12R312; // 2D hist. with Jacobi coordinates
   DLM_Histo<float>* dlmPhiVsRho; // 2D hist. with hyper-spherical coordinates
+  DLM_Histo<float>* dlmKStarInTriplets; // 2D hist. with hyper-spherical coordinates
 
   void GhettoInit();
 

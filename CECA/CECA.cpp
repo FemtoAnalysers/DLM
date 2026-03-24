@@ -221,6 +221,7 @@ CECA::CECA(const TREPNI& database,const std::vector<std::string>& list_of_partic
   // 3B femto
   dlmR12R312 = NULL;
   dlmPhiVsRho = NULL;
+  dlmKStarInTriplets = NULL;
 
   Ghetto_rstar = NULL;
   Ghetto_rcore = NULL;
@@ -300,8 +301,8 @@ CECA::CECA(const TREPNI& database,const std::vector<std::string>& list_of_partic
   }
   //NumSystVars = 1;
   ListOfParticles = list_of_particles;
-  if (ListOfParticles.size() < 2) {
-    LOG(FATAL, "At least 2 particles are required in the list_of_particles");
+  if (ListOfParticles.size() < 2 || ListOfParticles.size() > 3) {
+    LOG(FATAL, "Only 2 or 3 particles are supported in the list_of_particles");
   }
 
   for(std::string& particle : ListOfParticles){
@@ -323,6 +324,7 @@ CECA::~CECA(){
   ///////////////////////////////////////////////
   if(dlmR12R312){delete dlmR12R312; dlmR12R312=NULL;}
   if(dlmPhiVsRho){delete dlmPhiVsRho; dlmPhiVsRho=NULL;}
+  if(dlmKStarInTriplets){delete dlmKStarInTriplets; dlmKStarInTriplets=NULL;}
 
   if(Ghetto_rstar){delete Ghetto_rstar; Ghetto_rstar=NULL;}
   if(Ghetto_rcore){delete Ghetto_rcore; Ghetto_rcore=NULL;}
@@ -1478,6 +1480,16 @@ FragCorr = 1;
           dlmPhiVsRho->Fill(hyp_rad, hyp_angle);
           GhettoFemto_mT_rstar->Fill(mT,hyp_rad);
           counter_3f++;
+
+          // Calculate k* of pairs inside the triplet
+          double kstar12 = ComputeKstar(*prt_lab[0].Cats(), *prt_lab[1].Cats());
+          double kstar13 = ComputeKstar(*prt_lab[0].Cats(), *prt_lab[2].Cats());
+          double kstar23 = ComputeKstar(*prt_lab[1].Cats(), *prt_lab[2].Cats());
+          if (true) { // TODO implement case for different particles
+            dlmKStarInTriplets->Fill(kstar12);
+            dlmKStarInTriplets->Fill(kstar13);
+            dlmKStarInTriplets->Fill(kstar23);
+          }
         }
         }
         LOG(DEBUG, "End of 3B calculation");
@@ -2453,6 +2465,29 @@ void CECA::GhettoInit(){
   dlmPhiVsRho->SetUp(0, 200, 0, 20);
   dlmPhiVsRho->SetUp(1, 200, 0, M_PI / 2);
   dlmPhiVsRho->Initialize();
+
+  if(dlmKStarInTriplets) delete dlmKStarInTriplets;
+  if (ListOfParticles.size() == 3) {
+    if(ListOfParticles[0] == ListOfParticles[1] && ListOfParticles[1] == ListOfParticles[2]) {
+      dlmKStarInTriplets = new DLM_Histo<float>();
+      dlmKStarInTriplets->SetUp(1);
+      dlmKStarInTriplets->SetUp(0, 200, 0, 2000);
+      dlmKStarInTriplets->Initialize();
+    } else if (ListOfParticles[0] != ListOfParticles[1] && ListOfParticles[1] != ListOfParticles[2]) {
+      dlmKStarInTriplets = new DLM_Histo<float>();
+      dlmKStarInTriplets->SetUp(3);
+      dlmKStarInTriplets->SetUp(0, 200, 0, 2000);
+      dlmKStarInTriplets->SetUp(1, 200, 0, 2000);
+      dlmKStarInTriplets->SetUp(2, 200, 0, 2000);
+      dlmKStarInTriplets->Initialize();
+    } else {
+      dlmKStarInTriplets = new DLM_Histo<float>();
+      dlmKStarInTriplets->SetUp(2);
+      dlmKStarInTriplets->SetUp(0, 200, 0, 2000);
+      dlmKStarInTriplets->SetUp(1, 200, 0, 2000);
+      dlmKStarInTriplets->Initialize();
+    }
+  }
 
   if(Ghetto_RP_AngleRcP1) delete Ghetto_RP_AngleRcP1;
   Ghetto_RP_AngleRcP1 = new DLM_Histo<float>();
