@@ -2499,6 +2499,11 @@ void CECA::GhettoInit(){
       dlmKStarInTriplets->SetUp(1, 200, 0, 2000);
       dlmKStarInTriplets->Initialize();
     }
+  } else { // Leave empty histogram
+      dlmKStarInTriplets = new DLM_Histo<float>();
+      dlmKStarInTriplets->SetUp(1);
+      dlmKStarInTriplets->SetUp(0, 200, 0, 2000);
+      dlmKStarInTriplets->Initialize();
   }
 
   if(dlmRStarInTriplets) delete dlmRStarInTriplets;
@@ -2522,7 +2527,13 @@ void CECA::GhettoInit(){
       dlmRStarInTriplets->SetUp(1, 200, 0, 20);
       dlmRStarInTriplets->Initialize();
     }
+  } else { // Leave empty histogram
+      dlmRStarInTriplets = new DLM_Histo<float>();
+      dlmRStarInTriplets->SetUp(1);
+      dlmRStarInTriplets->SetUp(0, 200, 0, 2000);
+      dlmRStarInTriplets->Initialize();
   }
+
   if(Ghetto_RP_AngleRcP1) delete Ghetto_RP_AngleRcP1;
   Ghetto_RP_AngleRcP1 = new DLM_Histo<float>();
   Ghetto_RP_AngleRcP1->SetUp(1);
