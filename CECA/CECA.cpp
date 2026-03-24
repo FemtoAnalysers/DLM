@@ -19,7 +19,7 @@
 std::map<std::string, eMtMethod> mTMethodFromString = {
   {"kSimple", kSimple},
   {"kHarmonic", kHarmonic},
-  {"kDoubleHarmonic", kDoubleHarmonic},
+  {"kTripleHarmonic", kTripleHarmonic},
   {"k4VectorAverage", k4VectorAverage},
 };
 
@@ -40,14 +40,41 @@ CecaParticle::CecaParticle(const CecaParticle &other){
 }
 double CECA::ComputeMt(CatsLorentzVector* p1, CatsLorentzVector* p2, CatsLorentzVector* p3) {
   if (CECA::GetMtMethod() == kSimple) {
-    // TODO
-    throw std::runtime_error("The chosen method for computing mT is not implemented");
+    // Generalization of the usual formula for pp
+    double m1 = p1->Mag();
+    double m2 = p2->Mag();
+    double m3 = p3->Mag();
+
+    double M = (m1 + m2 + m3) / 3;
+    double px = (p1->GetPx() + p2->GetPx() + p3->GetPx()) / 3;
+    double py = (p1->GetPy() + p2->GetPy() + p3->GetPy()) / 3;
+
+    double kt2 = px * px + py * py;
+    return sqrt(M * M + kt2);
   } else if (CECA::GetMtMethod() == kHarmonic) {
-    // TODO
-    throw std::runtime_error("The chosen method for computing mT is not implemented");
-  } else if (CECA::GetMtMethod() == kDoubleHarmonic) {
-    // TODO
-    throw std::runtime_error("The chosen method for computing mT is not implemented");
+    // Use harmonic average of masses
+    double m1 = p1->Mag();
+    double m2 = p2->Mag();
+    double m3 = p3->Mag();
+
+    double M = 1. / (1. / m1 + 1. / m2 + 1. / m3);
+    double px = (p1->GetPx() + p2->GetPx() + p3->GetPx()) / 3;
+    double py = (p1->GetPy() + p2->GetPy() + p3->GetPy()) / 3;
+
+    double kt2 = px * px + py * py;
+    return sqrt(M * M + kt2);
+  } else if (CECA::GetMtMethod() == kTripleHarmonic) {
+    // Use harmonic average of masses and multiply by 3 to ensure M = m for m1 = m2 = m3
+    double m1 = p1->Mag();
+    double m2 = p2->Mag();
+    double m3 = p3->Mag();
+
+    double M = 3. / (1. / m1 + 1. / m2 + 1. / m3);
+    double px = (p1->GetPx() + p2->GetPx() + p3->GetPx()) / 3;
+    double py = (p1->GetPy() + p2->GetPy() + p3->GetPy()) / 3;
+
+    double kt2 = px * px + py * py;
+    return sqrt(M * M + kt2);
   } else if (CECA::GetMtMethod() == k4VectorAverage) {
     double E = p1->GetE() + p2->GetE() + p3->GetE();
     double pz = p1->GetPz() + p2->GetPz() + p3->GetPz();
