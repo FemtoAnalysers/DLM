@@ -1505,6 +1505,7 @@ if(prt_cm[0].IsUsefulProduct()&&prt_cm[1].IsUsefulProduct()){
 }
 
 double kstar = 0.5*cm_rel.GetP();
+LOG(DEBUG, "kstar old: " << kstar << "  kstar new: " << ComputeKstar(*(prt_lab[0].Cats()), *(prt_lab[1].Cats())));
 double rstar = cm_rel.GetR();
 double cos_th_star = -cm_rel.GetCosScatAngle();
 //double th_star = cm_rel.GetScatAngle();
