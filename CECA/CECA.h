@@ -11,7 +11,7 @@
 enum eMtMethod {
   kSimple = 1, // 
   kHarmonic,
-  kDoubleHarmonic,
+  kTripleHarmonic,
   k4VectorAverage,
 };
 
