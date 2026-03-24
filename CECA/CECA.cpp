@@ -16,6 +16,13 @@
 #include <array>
 #include <iomanip>
 
+std::map<std::string, eMtMethod> mTMethodFromString = {
+  {"kSimple", kSimple},
+  {"kHarmonic", kHarmonic},
+  {"kDoubleHarmonic", kDoubleHarmonic},
+  {"k4VectorAverage", k4VectorAverage},
+};
+
 auto dot =[](std::array<double, 3> v1, std::array<double, 3> v2){return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];};
 
 CecaParticle::CecaParticle(){
@@ -30,6 +37,25 @@ CecaParticle::CecaParticle(const CecaParticle &other){
   //printf("copy\n");
   CecaParticle();
   *this=other;
+}
+double CECA::ComputeMt(CatsLorentzVector* p1, CatsLorentzVector* p2, CatsLorentzVector* p3) {
+  if (CECA::GetMtMethod() == kSimple) {
+    // TODO
+    throw std::runtime_error("The chosen method for computing mT is not implemented");
+  } else if (CECA::GetMtMethod() == kHarmonic) {
+    // TODO
+    throw std::runtime_error("The chosen method for computing mT is not implemented");
+  } else if (CECA::GetMtMethod() == kDoubleHarmonic) {
+    // TODO
+    throw std::runtime_error("The chosen method for computing mT is not implemented");
+  } else if (CECA::GetMtMethod() == k4VectorAverage) {
+    double E = p1->GetE() + p2->GetE() + p3->GetE();
+    double pz = p1->GetPz() + p2->GetPz() + p3->GetPz();
+
+    return sqrt(E * E - pz * pz) / 3;
+  } else {
+    throw std::runtime_error("The chosen method for computing mT is not implemented");
+  }
 }
 CecaParticle::~CecaParticle(){
   //printf("del %p %p\n",cats,this);
@@ -146,6 +172,7 @@ CECA::CECA(const TREPNI& database,const std::vector<std::string>& list_of_partic
   EMULT = 0;
   SrcCnv = 1;
   DebugMode = false;
+  mTMethod = k4VectorAverage;
   exp_file_name = "";
   exp_file_flag = 0;
   //CLV.clear();
@@ -580,7 +607,13 @@ double CECA::GetFemtoLimit(){
 void CECA::SetEventMult(const unsigned short& emult){
   EMULT = emult;
 }
+void CECA::SetMtMethod(std::string method){
+  mTMethod = mTMethodFromString[method];
+}
 
+eMtMethod CECA::GetMtMethod(){
+  return mTMethod;
+}
 //void CECA::SetSystVars(const unsigned& howmany){
 //  if(!howmany) NumSystVars = 1;
 //  else NumSystVars = howmany;
@@ -1245,7 +1278,12 @@ FragCorr = 1;
         //printf(" %u",ID);
         //printf("ud = %u\n",ud);
         boost_v = boost_v+*(Primary.at(ID)->Cats());//
-        LOG(DEBUG, "Calculating boost components. pid: " << ID << "  boost: (" << boost_v.GetPx() << ", " << boost_v.GetPy() << ", " << boost_v.GetPz() << ")");
+
+        auto part = Primary.at(ID)->Cats();
+        double px = part->GetPx();
+        double py = part->GetPy();
+        double pz = part->GetPz();
+        LOG(DEBUG, "Calculating boost components. pid: " << ID << "  momentum: (" << px << ", " << py << ", " << pz << ")");
         prt_cm[ud] = *Primary.at(ID);
         prt_lab[ud] = *Primary.at(ID); 
         //prt_cm[ud].SetCats(Primary.at(ID)->Cats());
@@ -1255,6 +1293,7 @@ FragCorr = 1;
         ud++;
       }
       //printf("\n");
+      LOG(DEBUG, "Boost components: (" << boost_v.GetPx() << ", " << boost_v.GetPy() << ", " << boost_v.GetPz() << ")");
 
       //the starting time of the interaction
       //given by the last particle to form
@@ -1357,24 +1396,29 @@ FragCorr = 1;
         double hyp_rad = sqrt((mu12 * r12_squared + mu3_12 * r3_12_squared) / Malpha);
         double hyp_angle = atan2(sqrt(mu3_12 * r3_12_squared), sqrt(mu12 * r12_squared));
 
-        std::array<double, 3> v_p1 = {prt_cm[0].Cats()->GetPx(), prt_cm[0].Cats()->GetPy(), prt_cm[0].Cats()->GetPz()};
-        std::array<double, 3> v_p2 = {prt_cm[1].Cats()->GetPx(), prt_cm[1].Cats()->GetPy(), prt_cm[1].Cats()->GetPz()};
-        std::array<double, 3> v_p3 = {prt_cm[2].Cats()->GetPx(), prt_cm[2].Cats()->GetPy(), prt_cm[2].Cats()->GetPz()};
+        std::array<double, 4> v_p1 = {prt_cm[0].Cats()->GetE(), prt_cm[0].Cats()->GetPx(), prt_cm[0].Cats()->GetPy(), prt_cm[0].Cats()->GetPz()};
+        std::array<double, 4> v_p2 = {prt_cm[1].Cats()->GetE(), prt_cm[1].Cats()->GetPx(), prt_cm[1].Cats()->GetPy(), prt_cm[1].Cats()->GetPz()};
+        std::array<double, 4> v_p3 = {prt_cm[2].Cats()->GetE(), prt_cm[2].Cats()->GetPx(), prt_cm[2].Cats()->GetPy(), prt_cm[2].Cats()->GetPz()};
 
         // Computation of conjugated momenta of Jacobi coordinates
         std::array<double, 3> v_k12;
         std::array<double, 3> v_k3_12; 
-        for(unsigned uv=0; uv<3; uv++){
-          v_k12[uv] = (m2 * v_p1[uv] - m1 * v_p2[uv]) / (m1+m2);
-          v_k3_12[uv] = ((m1 + m2) * v_p3[uv] - m3 * (v_p1[uv] + v_p2[uv])) / (m1 + m2 + m3);
+        for(unsigned uv=1; uv<4; uv++){
+          v_k12[uv - 1] = (m2 * v_p1[uv] - m1 * v_p2[uv]) / (m1+m2);
+          v_k3_12[uv - 1] = ((m1 + m2) * v_p3[uv] - m3 * (v_p1[uv] + v_p2[uv])) / (m1 + m2 + m3);
         }
 
-        // Averaged per particle
-        double mT = boost_v.GetMt()/3.;
+        auto clv1 = (CatsLorentzVector *)prt_lab[0].Cats();
+        auto clv2 = (CatsLorentzVector *)prt_lab[1].Cats();
+        auto clv3 = (CatsLorentzVector *)prt_lab[2].Cats();
 
-        LOG(DEBUG, "p1 components: (" << v_p1[0] << ", " << v_p1[0] << ", " << v_p1[0] << ")");
-        LOG(DEBUG, "p2 components: (" << v_p2[1] << ", " << v_p2[1] << ", " << v_p2[1] << ")");
-        LOG(DEBUG, "p3 components: (" << v_p3[2] << ", " << v_p3[2] << ", " << v_p3[2] << ")");
+        double mT = ComputeMt(clv1, clv2, clv3);
+
+        LOG(DEBUG, "mT original: " << boost_v.GetMt() / 3 << "  mT new: " << mT);
+
+        LOG(DEBUG, "p1 components: (" << v_p1[0] << ", " << v_p1[1] << ", " << v_p1[2] << ", " << v_p1[3] << ")");
+        LOG(DEBUG, "p2 components: (" << v_p2[0] << ", " << v_p2[1] << ", " << v_p2[2] << ", " << v_p2[3] << ")");
+        LOG(DEBUG, "p3 components: (" << v_p3[0] << ", " << v_p3[1] << ", " << v_p3[2] << ", " << v_p3[3] << ")");
         LOG(DEBUG, "Boost components: (" << boost_v.GetPx() << ", " << boost_v.GetPy() << ", " << boost_v.GetPz() << ") --> mT: " << mT);
 
         // Based on Eq. 1.15 of 3B notes
