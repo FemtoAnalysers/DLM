@@ -127,8 +127,8 @@ public:
     void RotateMomPhi(const double& angle);
     void RenormSpacialCoordinates(const double& Renorm);
     void Print();
-    CatsLorentzVector const operator+(const CatsLorentzVector& other);
-    CatsLorentzVector const operator-(const CatsLorentzVector& other);
+    CatsLorentzVector const operator+(const CatsLorentzVector& other) const;
+    CatsLorentzVector const operator-(const CatsLorentzVector& other) const;
     void operator=(const CatsLorentzVector& other);
 protected:
     double FourSpace[4];
