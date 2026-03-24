@@ -447,6 +447,19 @@ double pCm_pLab(const double& pCm, const double& Mass1, const double& Mass2);
 double pCm_tLab(const double& pCm, const double& Mass1, const double& Mass2);
 double IM_to_kstar(const double IM, const double Mass1, const double Mass2);
 
+inline double ComputeKstar(const CatsLorentzVector p1,const CatsLorentzVector p2) {
+    auto p1star = p1;
+    auto p2star = p2;
+    CatsLorentzVector pCM = p1 + p2;
 
+    p1star.Boost(pCM);
+    p2star.Boost(pCM);
+
+    p1star = p1star - pCM;
+    p2star = p2star - pCM;
+    double kstar = 0.5 * (p2star - p1star).GetP();
+
+    return kstar;
+}
 
 #endif // CATSTOOLS_H
