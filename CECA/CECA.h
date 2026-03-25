@@ -423,7 +423,7 @@ unsigned GenerateEventTEMP();
   DLM_Histo<float>* dlmR12R312; // 2D hist. with Jacobi coordinates
   DLM_Histo<float>* dlmPhiVsRho; // 2D hist. with hyper-spherical coordinates
   DLM_Histo<float>* dlmKStarInTriplets; // 2D hist. with hyper-spherical coordinates
-  DLM_Histo<float>* dlmRStarInTriplets; // 2D hist. with hyper-spherical coordinates
+  DLM_Histo<float>* dlmRStarInTriplets; // 2D hist. with r* of pairs in triplets
 
   void GhettoInit();
 
