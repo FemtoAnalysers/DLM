@@ -6,6 +6,16 @@
 #include <cstddef>
 #include <string>
 #include <vector>
+#include <map>
+
+enum eMtMethod {
+  kSimple = 1, // 
+  kHarmonic,
+  kTripleHarmonic,
+  k4VectorAverage,
+};
+
+extern std::map<std::string, eMtMethod> mTMethodFromString;
 
 template <class Type> class DLM_Histo;
 class CatsLorentzVector;
@@ -66,6 +76,8 @@ public:
   CECA(const TREPNI& database, const std::vector<std::string>& list_of_particles);
   //CECA(const TREPNI& database);
   ~CECA();
+
+  double ComputeMt(CatsLorentzVector* p1, CatsLorentzVector* p2, CatsLorentzVector* p3);
 
   //the width (X), alpha factor (Levy) related to the displacement source
   //the displ. is relative to the "perfect" collision point
@@ -141,6 +153,8 @@ public:
   //give the correct Dim-body source. Usefull parameter to QA
   //if zero, than by default this is set to Dim*Dim
   void SetEventMult(const unsigned short& emult=0);//done
+  void SetMtMethod(std::string method);
+  eMtMethod GetMtMethod();
 
   //flag==0 -> no export
   //else -> we always write out //kstar, rstar, mT
@@ -207,6 +221,7 @@ public:
   //void SetThreadTimeout(const unsigned& seconds);
   //true by default. Within a multiplet it propagates the particles until
   //they all have the same tau component
+  void SetArbitraryMass(double mass) {this->arbitraryMass = mass; };
   void EqualizeFsiTime(const bool& yesno);//done
 
   //if num_threads=0, we will dynamically adjust based on efficiency
@@ -215,6 +230,12 @@ public:
 
   void GhettoTest1(const unsigned NumPairs, const float r_SP, const float p_SP);
   //CatsParticle* GhettoDecay(CatsParticle& particle, const float mass1, const float mass2);
+
+  DLM_Histo<float>* GetR12R312() const { return this->dlmR12R312; };
+  DLM_Histo<float>* GetPhiVsRho() const { return this->dlmPhiVsRho; };
+  DLM_Histo<float>* GetRhoVsMt() const { return this->dlmRhoVsMt; };
+  DLM_Histo<float>* GetKStarInTriplets() const { return this->dlmKStarInTriplets; };
+  DLM_Histo<float>* GetRStarInTriplets() const { return this->dlmRStarInTriplets; };
 
   unsigned Ghetto_NumMtBins;
   double Ghetto_MtMin;
@@ -352,6 +373,8 @@ private:
   unsigned long long AchievedYield;
   char SrcCnv;
   bool DebugMode;
+  eMtMethod mTMethod; // How to compute the mT. Currently only for triplets
+  double arbitraryMass; // Used for 3B calculations
   DLM_Random** RanGen;
 
   //the k* (MeV) below which a FemtoPair is concidered such
@@ -398,6 +421,13 @@ unsigned GenerateEventTEMP();
   //if zero, NO timeout
   unsigned GlobalTimeout;
   //
+
+  // Histograms specific to 3B femto
+  DLM_Histo<float>* dlmR12R312; // 2D hist. with Jacobi coordinates
+  DLM_Histo<float>* dlmPhiVsRho; // 2D hist. with hyper-spherical coordinates
+  DLM_Histo<float>* dlmRhoVsMt; // 2D hist. with hyper-spherical coordinates
+  DLM_Histo<float>* dlmKStarInTriplets; // 2D hist. with hyper-spherical coordinates
+  DLM_Histo<float>* dlmRStarInTriplets; // 2D hist. with r* of pairs in triplets
 
   void GhettoInit();
 
