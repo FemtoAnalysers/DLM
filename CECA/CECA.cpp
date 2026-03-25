@@ -221,6 +221,7 @@ CECA::CECA(const TREPNI& database,const std::vector<std::string>& list_of_partic
   // 3B femto
   dlmR12R312 = NULL;
   dlmPhiVsRho = NULL;
+  dlmRhoVsMt = NULL;
   dlmKStarInTriplets = NULL;
   dlmRStarInTriplets = NULL;
 
@@ -325,6 +326,7 @@ CECA::~CECA(){
   ///////////////////////////////////////////////
   if(dlmR12R312){delete dlmR12R312; dlmR12R312=NULL;}
   if(dlmPhiVsRho){delete dlmPhiVsRho; dlmPhiVsRho=NULL;}
+  if(dlmRhoVsMt){delete dlmRhoVsMt; dlmRhoVsMt=NULL;}
   if(dlmKStarInTriplets){delete dlmKStarInTriplets; dlmKStarInTriplets=NULL;}
   if(dlmRStarInTriplets){delete dlmRStarInTriplets; dlmRStarInTriplets=NULL;}
 
@@ -1480,7 +1482,7 @@ FragCorr = 1;
         if(Q3<FemtoLimit){
           dlmR12R312->Fill(sqrt(r12_squared), r3_12_squared);
           dlmPhiVsRho->Fill(hyp_rad, hyp_angle);
-          GhettoFemto_mT_rstar->Fill(mT,hyp_rad);
+          dlmRhoVsMt->Fill(mT,hyp_rad);
           counter_3f++;
 
           // Calculate k* of pairs inside the triplet
@@ -2477,6 +2479,18 @@ void CECA::GhettoInit(){
   dlmPhiVsRho->SetUp(0, 200, 0, 20);
   dlmPhiVsRho->SetUp(1, 200, 0, M_PI / 2);
   dlmPhiVsRho->Initialize();
+
+  if(dlmRhoVsMt) delete dlmRhoVsMt;
+  dlmRhoVsMt = new DLM_Histo<float>();
+  dlmRhoVsMt->SetUp(2);
+  if(Ghetto_MtBins){
+    dlmRhoVsMt->SetUp(0,Ghetto_NumMtBins,Ghetto_MtBins);
+  }
+  else{
+    dlmRhoVsMt->SetUp(0,Ghetto_NumMtBins,Ghetto_MtMin,Ghetto_MtMax);
+  }
+  dlmRhoVsMt->SetUp(1,Ghetto_NumRadBins,Ghetto_RadMin,Ghetto_RadMax);
+  dlmRhoVsMt->Initialize();
 
   if(dlmKStarInTriplets) delete dlmKStarInTriplets;
   if (ListOfParticles.size() == 3) {
