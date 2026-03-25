@@ -221,6 +221,7 @@ public:
   //void SetThreadTimeout(const unsigned& seconds);
   //true by default. Within a multiplet it propagates the particles until
   //they all have the same tau component
+  void SetArbitraryMass(double mass) {this->arbitraryMass = mass; };
   void EqualizeFsiTime(const bool& yesno);//done
 
   //if num_threads=0, we will dynamically adjust based on efficiency
@@ -373,6 +374,7 @@ private:
   char SrcCnv;
   bool DebugMode;
   eMtMethod mTMethod; // How to compute the mT. Currently only for triplets
+  double arbitraryMass; // Used for 3B calculations
   DLM_Random** RanGen;
 
   //the k* (MeV) below which a FemtoPair is concidered such

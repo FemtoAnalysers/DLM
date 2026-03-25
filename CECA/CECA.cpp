@@ -200,6 +200,7 @@ CECA::CECA(const TREPNI& database,const std::vector<std::string>& list_of_partic
   SrcCnv = 1;
   DebugMode = false;
   mTMethod = k4VectorAverage;
+  arbitraryMass = -1;
   exp_file_name = "";
   exp_file_flag = 0;
   //CLV.clear();
@@ -725,6 +726,10 @@ void CECA::GoBabyGo(const unsigned& num_threads){
 
   if (EMULT < ListOfParticles.size()) {
     LOG(FATAL, "CECA is not ready: event multiplicity is smaller than the n. of particles in list_of_particles");
+  }
+
+  if (arbitraryMass < 0 && ListOfParticles.size() == 3) {
+    LOG(FATAL, "CECA is not ready: arbitrary mass is negative: did you set it?");
   }
 
   GhettoInit();
@@ -1403,11 +1408,7 @@ FragCorr = 1;
         double beta = 4 * m3 * mtot / (m1 + m2) * (m2 / pow(m2 + m3, 2) - m1 / pow(m1 + m3, 2));
         double gamma = 4 * mtot * mtot / pow(m1 + m2, 2) *  (m1 * m1 / pow(m1 + m3, 2) + m2 * m2 / pow(m2 + m3, 2));
 
-        // Arbitrary mass. For identical particles this definition works out to 3x mass of the particle.
-        // This is the definition that leads to Q==Q3
-        double Malpha = mu12 * alpha / 6.;
-        
-        LOG(DEBUG, "Masses: m1 " << m1 << "  m2: " << m2 << "  m3: " << m3 << "  arbitrary mass: " << Malpha);
+        LOG(DEBUG, "Masses: m1 " << m1 << "  m2: " << m2 << "  m3: " << m3 << "  arbitrary mass: " << arbitraryMass);
   
         std::array<double, 3> v_r1 = {prt_cm[0].Cats()->GetX(), prt_cm[0].Cats()->GetY(), prt_cm[0].Cats()->GetZ()};
         std::array<double, 3> v_r2 = {prt_cm[1].Cats()->GetX(), prt_cm[1].Cats()->GetY(), prt_cm[1].Cats()->GetZ()};
@@ -1426,7 +1427,7 @@ FragCorr = 1;
         // Compute hyper-radius
         double r12_squared = dot(v_r12, v_r12);
         double r3_12_squared = dot(v_r3_12, v_r3_12);
-        double hyp_rad = sqrt((mu12 * r12_squared + mu3_12 * r3_12_squared) / Malpha);
+        double hyp_rad = sqrt((mu12 * r12_squared + mu3_12 * r3_12_squared) / arbitraryMass);
         double hyp_angle = atan2(sqrt(mu3_12 * r3_12_squared), sqrt(mu12 * r12_squared));
 
         std::array<double, 4> v_p1 = {prt_cm[0].Cats()->GetE(), prt_cm[0].Cats()->GetPx(), prt_cm[0].Cats()->GetPy(), prt_cm[0].Cats()->GetPz()};
@@ -1455,7 +1456,7 @@ FragCorr = 1;
         LOG(DEBUG, "Boost components: (" << boost_v.GetPx() << ", " << boost_v.GetPy() << ", " << boost_v.GetPz() << ") --> mT: " << mT);
 
         // Based on Eq. 1.15 of 3B notes
-        double Q = sqrt(Malpha / mu12 * dot(v_k12, v_k12) + Malpha / mu3_12 * dot(v_k3_12, v_k3_12));
+        double Q = sqrt(arbitraryMass / mu12 * dot(v_k12, v_k12) + arbitraryMass / mu3_12 * dot(v_k3_12, v_k3_12));
 
         // Based on Eq. 1.79 of 3B notes
         double Q3 = sqrt(alpha * dot(v_k12, v_k12) + 2 * beta * dot(v_k12, v_k3_12) + gamma * dot(v_k3_12, v_k3_12));
