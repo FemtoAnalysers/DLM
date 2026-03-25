@@ -12,10 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add option to set the arbitrary mass for 3B calculations
 
 ## 0.1.1
-
 ### Added
 - CHANGELOG.md file
 - some histograms in CECA for 3B femto
-
 ### Fixed
 - Use Q3 instead of Q in 3B calculations
+
+## 0.1.0
+### Changed
+- Use cached user paths during installation
+### Added
+- Some basic tests
+### Fixed
+- Compilation errors
