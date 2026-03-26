@@ -1481,7 +1481,7 @@ FragCorr = 1;
           << "  mT: " << std::setprecision(2) << mT);
         static int counter_3f = 0;
         if(Q3<FemtoLimit){
-          dlmR12R312->Fill(sqrt(r12_squared), r3_12_squared);
+          dlmR12R312->Fill(sqrt(r12_squared), sqrt(r3_12_squared));
           dlmPhiVsRho->Fill(hyp_rad, hyp_angle);
           dlmRhoVsMt->Fill(mT,hyp_rad);
           counter_3f++;
