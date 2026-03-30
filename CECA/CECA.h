@@ -235,6 +235,7 @@ public:
   DLM_Histo<float>* GetPhiVsRho() const { return this->dlmPhiVsRho; };
   DLM_Histo<float>* GetRhoVsMt() const { return this->dlmRhoVsMt; };
   DLM_Histo<float>* GetKStarInTriplets() const { return this->dlmKStarInTriplets; };
+  DLM_Histo<float>* GetKStarInTripletsVsQ3() const { return this->dlmKStarInTripletsVsQ3; };
   DLM_Histo<float>* GetRStarInTriplets() const { return this->dlmRStarInTriplets; };
 
   unsigned Ghetto_NumMtBins;
@@ -428,6 +429,7 @@ unsigned GenerateEventTEMP();
   DLM_Histo<float>* dlmRhoVsMt; // 2D hist. with hyper-spherical coordinates
   DLM_Histo<float>* dlmKStarInTriplets; // 2D hist. with hyper-spherical coordinates
   DLM_Histo<float>* dlmRStarInTriplets; // 2D hist. with r* of pairs in triplets
+  DLM_Histo<float>* dlmKStarInTripletsVsQ3; //
 
   void GhettoInit();
 
