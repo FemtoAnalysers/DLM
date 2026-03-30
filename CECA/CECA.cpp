@@ -224,6 +224,7 @@ CECA::CECA(const TREPNI& database,const std::vector<std::string>& list_of_partic
   dlmPhiVsRho = NULL;
   dlmRhoVsMt = NULL;
   dlmKStarInTriplets = NULL;
+  dlmKStarInTripletsVsQ3 = NULL;
   dlmRStarInTriplets = NULL;
 
   Ghetto_rstar = NULL;
@@ -329,6 +330,7 @@ CECA::~CECA(){
   if(dlmPhiVsRho){delete dlmPhiVsRho; dlmPhiVsRho=NULL;}
   if(dlmRhoVsMt){delete dlmRhoVsMt; dlmRhoVsMt=NULL;}
   if(dlmKStarInTriplets){delete dlmKStarInTriplets; dlmKStarInTriplets=NULL;}
+  if(dlmKStarInTripletsVsQ3){delete dlmKStarInTripletsVsQ3; dlmKStarInTripletsVsQ3=NULL;}
   if(dlmRStarInTriplets){delete dlmRStarInTriplets; dlmRStarInTriplets=NULL;}
 
   if(Ghetto_rstar){delete Ghetto_rstar; Ghetto_rstar=NULL;}
@@ -1480,22 +1482,28 @@ FragCorr = 1;
           << "  hyp_rad: " << std::setprecision(2) << hyp_rad
           << "  mT: " << std::setprecision(2) << mT);
         static int counter_3f = 0;
+
+        // Calculate k* of pairs inside the triplet
+        double kstar12 = ComputeKstar(*prt_lab[0].Cats(), *prt_lab[1].Cats());
+        double kstar13 = ComputeKstar(*prt_lab[0].Cats(), *prt_lab[2].Cats());
+        double kstar23 = ComputeKstar(*prt_lab[1].Cats(), *prt_lab[2].Cats());
+
+        dlmKStarInTripletsVsQ3->Fill(Q3, kstar12);
+        dlmKStarInTripletsVsQ3->Fill(Q3, kstar13);
+        dlmKStarInTripletsVsQ3->Fill(Q3, kstar23);
+
         if(Q3<FemtoLimit){
           dlmR12R312->Fill(sqrt(r12_squared), sqrt(r3_12_squared));
           dlmPhiVsRho->Fill(hyp_rad, hyp_angle);
           dlmRhoVsMt->Fill(mT,hyp_rad);
           counter_3f++;
 
-          // Calculate k* of pairs inside the triplet
-          double kstar12 = ComputeKstar(*prt_lab[0].Cats(), *prt_lab[1].Cats());
-          double kstar13 = ComputeKstar(*prt_lab[0].Cats(), *prt_lab[2].Cats());
-          double kstar23 = ComputeKstar(*prt_lab[1].Cats(), *prt_lab[2].Cats());
-
           // Non-relativistic calculation
           double rStar12 = sqrt(pow(v_r1[0] - v_r2[0], 2) + pow(v_r1[1] - v_r2[1], 2) + pow(v_r1[2] - v_r2[2], 2));
           double rStar13 = sqrt(pow(v_r1[0] - v_r3[0], 2) + pow(v_r1[1] - v_r3[1], 2) + pow(v_r1[2] - v_r3[2], 2));
           double rStar23 = sqrt(pow(v_r2[0] - v_r3[0], 2) + pow(v_r2[1] - v_r3[1], 2) + pow(v_r2[2] - v_r3[2], 2));
           
+
           if (true) { // TODO implement case for different particles
             dlmKStarInTriplets->Fill(kstar12);
             dlmKStarInTriplets->Fill(kstar13);
@@ -2519,6 +2527,28 @@ void CECA::GhettoInit(){
       dlmKStarInTriplets->SetUp(1);
       dlmKStarInTriplets->SetUp(0, 200, 0, 2000);
       dlmKStarInTriplets->Initialize();
+  }
+
+  // TODO: this only works for identical particles -> generalize
+  if(dlmKStarInTripletsVsQ3) delete dlmKStarInTripletsVsQ3;
+  if (ListOfParticles.size() == 3) {
+    if(ListOfParticles[0] == ListOfParticles[1] && ListOfParticles[1] == ListOfParticles[2]) {
+      dlmKStarInTripletsVsQ3 = new DLM_Histo<float>();
+      dlmKStarInTripletsVsQ3->SetUp(2);
+      dlmKStarInTripletsVsQ3->SetUp(0, 200, 0, 2000);
+      dlmKStarInTripletsVsQ3->SetUp(1, 200, 0, 2000);
+      dlmKStarInTripletsVsQ3->Initialize();
+    } else if (ListOfParticles[0] != ListOfParticles[1] && ListOfParticles[1] != ListOfParticles[2]) {
+      throw std::runtime_error("histogram 'dlmKStarInTripletsVsQ3' not implemented systems of type ABC");
+    } else {
+      throw std::runtime_error("histogram 'dlmKStarInTripletsVsQ3' not implemented systems of type AAB");
+    }
+  } else { // Leave empty histogram
+      dlmKStarInTripletsVsQ3 = new DLM_Histo<float>();
+      dlmKStarInTripletsVsQ3->SetUp(2);
+      dlmKStarInTripletsVsQ3->SetUp(0, 200, 0, 2000);
+      dlmKStarInTripletsVsQ3->SetUp(1, 200, 0, 2000);
+      dlmKStarInTripletsVsQ3->Initialize();
   }
 
   if(dlmRStarInTriplets) delete dlmRStarInTriplets;
