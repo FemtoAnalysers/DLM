@@ -1492,8 +1492,8 @@ FragCorr = 1;
         dlmKStarInTripletsVsQ3->Fill(Q3, kstar13);
         dlmKStarInTripletsVsQ3->Fill(Q3, kstar23);
 
+        dlmR12R312->Fill(sqrt(r12_squared), sqrt(r3_12_squared));
         if(Q3<FemtoLimit){
-          dlmR12R312->Fill(sqrt(r12_squared), sqrt(r3_12_squared));
           dlmPhiVsRho->Fill(hyp_rad, hyp_angle);
           dlmRhoVsMt->Fill(mT,hyp_rad);
           counter_3f++;
