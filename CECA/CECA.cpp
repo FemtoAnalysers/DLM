@@ -38,8 +38,8 @@ CecaParticle::CecaParticle(const CecaParticle &other){
   CecaParticle();
   *this=other;
 }
-double CECA::ComputeMt(CatsLorentzVector* p1, CatsLorentzVector* p2, CatsLorentzVector* p3) {
-  if (CECA::GetMtMethod() == kSimple) {
+
+double ComputeMtSimple(CatsLorentzVector* p1, CatsLorentzVector* p2, CatsLorentzVector* p3) {
     // Generalization of the usual formula for pp
     double m1 = p1->Mag();
     double m2 = p2->Mag();
@@ -51,7 +51,9 @@ double CECA::ComputeMt(CatsLorentzVector* p1, CatsLorentzVector* p2, CatsLorentz
 
     double kt2 = px * px + py * py;
     return sqrt(M * M + kt2);
-  } else if (CECA::GetMtMethod() == kHarmonic) {
+}
+
+double ComputeMtHarmonic(CatsLorentzVector* p1, CatsLorentzVector* p2, CatsLorentzVector* p3) {
     // Use harmonic average of masses
     double m1 = p1->Mag();
     double m2 = p2->Mag();
@@ -63,7 +65,9 @@ double CECA::ComputeMt(CatsLorentzVector* p1, CatsLorentzVector* p2, CatsLorentz
 
     double kt2 = px * px + py * py;
     return sqrt(M * M + kt2);
-  } else if (CECA::GetMtMethod() == kTripleHarmonic) {
+}
+
+double ComputeMtTripleHarmonic(CatsLorentzVector* p1, CatsLorentzVector* p2, CatsLorentzVector* p3) {
     // Use harmonic average of masses and multiply by 3 to ensure M = m for m1 = m2 = m3
     double m1 = p1->Mag();
     double m2 = p2->Mag();
@@ -75,14 +79,33 @@ double CECA::ComputeMt(CatsLorentzVector* p1, CatsLorentzVector* p2, CatsLorentz
 
     double kt2 = px * px + py * py;
     return sqrt(M * M + kt2);
-  } else if (CECA::GetMtMethod() == k4VectorAverage) {
+}
+
+double ComputeMt4VectorAverage(CatsLorentzVector* p1, CatsLorentzVector* p2, CatsLorentzVector* p3) {
     double E = p1->GetE() + p2->GetE() + p3->GetE();
     double pz = p1->GetPz() + p2->GetPz() + p3->GetPz();
 
     return sqrt(E * E - pz * pz) / 3;
-  } else {
-    throw std::runtime_error("The chosen method for computing mT is not implemented");
+}
+
+double CECA::ComputeMt(CatsLorentzVector* p1, CatsLorentzVector* p2, CatsLorentzVector* p3) {
+  if (CECA::GetMtMethod() == kSimple) {
+    return ComputeMtSimple(p1, p2, p3);
   }
+  
+  if (CECA::GetMtMethod() == kHarmonic) {
+    return ComputeMtHarmonic(p1, p2, p3);
+  }
+  
+  if (CECA::GetMtMethod() == kTripleHarmonic) {
+    ComputeMtTripleHarmonic(p1, p2, p3);
+  }
+  
+  if (CECA::GetMtMethod() == k4VectorAverage) {
+    return ComputeMt4VectorAverage(p1, p2, p3);
+  }
+  
+  throw std::runtime_error("The chosen method for computing mT is not implemented");
 }
 CecaParticle::~CecaParticle(){
   //printf("del %p %p\n",cats,this);
