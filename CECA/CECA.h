@@ -232,6 +232,7 @@ public:
   //CatsParticle* GhettoDecay(CatsParticle& particle, const float mass1, const float mass2);
 
   DLM_Histo<float>* GetR12R312() const { return this->dlmR12R312; };
+  DLM_Histo<float>* GetMtSimpleVs4VectorAverage() const { return this->dlmMtSimpleVs4VectorAverage; };
   DLM_Histo<float>* GetPhiVsRho() const { return this->dlmPhiVsRho; };
   DLM_Histo<float>* GetRhoVsMt() const { return this->dlmRhoVsMt; };
   DLM_Histo<float>* GetKStarInTriplets() const { return this->dlmKStarInTriplets; };
@@ -425,6 +426,7 @@ unsigned GenerateEventTEMP();
 
   // Histograms specific to 3B femto
   DLM_Histo<float>* dlmR12R312; // 2D hist. with Jacobi coordinates
+  DLM_Histo<float>* dlmMtSimpleVs4VectorAverage; // Transverse mass of the triplet
   DLM_Histo<float>* dlmPhiVsRho; // 2D hist. with hyper-spherical coordinates
   DLM_Histo<float>* dlmRhoVsMt; // 2D hist. with hyper-spherical coordinates
   DLM_Histo<float>* dlmKStarInTriplets; // 2D hist. with hyper-spherical coordinates
