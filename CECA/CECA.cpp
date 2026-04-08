@@ -244,6 +244,7 @@ CECA::CECA(const TREPNI& database,const std::vector<std::string>& list_of_partic
 
   // 3B femto
   dlmR12R312 = NULL;
+  dlmMtSimpleVs4VectorAverage = NULL;
   dlmPhiVsRho = NULL;
   dlmRhoVsMt = NULL;
   dlmKStarInTriplets = NULL;
@@ -350,6 +351,7 @@ CECA::~CECA(){
 
   ///////////////////////////////////////////////
   if(dlmR12R312){delete dlmR12R312; dlmR12R312=NULL;}
+  if(dlmMtSimpleVs4VectorAverage){delete dlmMtSimpleVs4VectorAverage; dlmMtSimpleVs4VectorAverage=NULL;}
   if(dlmPhiVsRho){delete dlmPhiVsRho; dlmPhiVsRho=NULL;}
   if(dlmRhoVsMt){delete dlmRhoVsMt; dlmRhoVsMt=NULL;}
   if(dlmKStarInTriplets){delete dlmKStarInTriplets; dlmKStarInTriplets=NULL;}
@@ -1514,6 +1516,7 @@ FragCorr = 1;
         dlmKStarInTripletsVsQ3->Fill(Q3, kstar12);
         dlmKStarInTripletsVsQ3->Fill(Q3, kstar13);
         dlmKStarInTripletsVsQ3->Fill(Q3, kstar23);
+        dlmMtSimpleVs4VectorAverage->Fill(ComputeMt4VectorAverage(clv1, clv2, clv3), ComputeMtSimple(clv1, clv2, clv3));
 
         dlmR12R312->Fill(sqrt(r12_squared), sqrt(r3_12_squared));
         if(Q3<FemtoLimit){
@@ -2504,6 +2507,13 @@ void CECA::GhettoInit(){
   dlmR12R312->SetUp(0, 200, 0, 20);
   dlmR12R312->SetUp(1, 200, 0, 20);
   dlmR12R312->Initialize();
+  
+  if(dlmMtSimpleVs4VectorAverage) delete dlmMtSimpleVs4VectorAverage;
+  dlmMtSimpleVs4VectorAverage = new DLM_Histo<float>();
+  dlmMtSimpleVs4VectorAverage->SetUp(2);
+  dlmMtSimpleVs4VectorAverage->SetUp(0, 200, 0, 5000);
+  dlmMtSimpleVs4VectorAverage->SetUp(1, 200, 0, 5000);
+  dlmMtSimpleVs4VectorAverage->Initialize();
   
   if(dlmPhiVsRho) delete dlmPhiVsRho;
   dlmPhiVsRho = new DLM_Histo<float>();
