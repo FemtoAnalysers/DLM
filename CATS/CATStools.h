@@ -462,4 +462,23 @@ inline double ComputeKstar(const CatsLorentzVector p1,const CatsLorentzVector p2
     return kstar;
 }
 
+inline std::pair<double, double> ComputeKstarRstar(const CatsLorentzVector p1,const CatsLorentzVector p2) {
+    auto p1star = p1;
+    auto p2star = p2;
+    CatsLorentzVector pCM = p1 + p2;
+
+    p1star.Boost(pCM);
+    p2star.Boost(pCM);
+
+    p1star = p1star - pCM;
+    p2star = p2star - pCM;
+    auto delta = p2star - p1star;
+
+    double kstar = 0.5 * delta.GetP();
+    double rstar = delta.GetR();
+
+    return std::pair<double, double> {kstar, rstar};
+}
+
+
 #endif // CATSTOOLS_H
