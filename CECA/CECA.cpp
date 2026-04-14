@@ -1473,6 +1473,13 @@ FragCorr = 1;
         auto clv2 = (CatsLorentzVector *)prt_lab[1].Cats();
         auto clv3 = (CatsLorentzVector *)prt_lab[2].Cats();
 
+        auto [kStar12, rStar12] = ComputeKstarRstar(*prt_lab[0].Cats(), *prt_lab[1].Cats());
+        auto [kStar13, rStar13] = ComputeKstarRstar(*prt_lab[0].Cats(), *prt_lab[2].Cats());
+        auto [kStar23, rStar23] = ComputeKstarRstar(*prt_lab[1].Cats(), *prt_lab[2].Cats());
+        LOG(DEBUG, "k*(1,2): " << kStar12 << "r*(1,2): " << rStar12);
+        LOG(DEBUG, "k*(1,3): " << kStar13 << "r*(1,3): " << rStar13);
+        LOG(DEBUG, "k*(2,3): " << kStar23 << "r*(2,3): " << rStar23);
+
         double mT = ComputeMt(clv1, clv2, clv3);
 
         LOG(DEBUG, "mT original: " << boost_v.GetMt() / 3 << "  mT new: " << mT);
@@ -1509,13 +1516,13 @@ FragCorr = 1;
         static int counter_3f = 0;
 
         // Calculate k* of pairs inside the triplet
-        double kstar12 = ComputeKstar(*prt_lab[0].Cats(), *prt_lab[1].Cats());
-        double kstar13 = ComputeKstar(*prt_lab[0].Cats(), *prt_lab[2].Cats());
-        double kstar23 = ComputeKstar(*prt_lab[1].Cats(), *prt_lab[2].Cats());
+        // double kstar12 = ComputeKstar(*prt_lab[0].Cats(), *prt_lab[1].Cats());
+        // double kstar13 = ComputeKstar(*prt_lab[0].Cats(), *prt_lab[2].Cats());
+        // double kstar23 = ComputeKstar(*prt_lab[1].Cats(), *prt_lab[2].Cats());
 
-        dlmKStarInTripletsVsQ3->Fill(Q3, kstar12);
-        dlmKStarInTripletsVsQ3->Fill(Q3, kstar13);
-        dlmKStarInTripletsVsQ3->Fill(Q3, kstar23);
+        dlmKStarInTripletsVsQ3->Fill(Q3, kStar12);
+        dlmKStarInTripletsVsQ3->Fill(Q3, kStar13);
+        dlmKStarInTripletsVsQ3->Fill(Q3, kStar23);
         dlmMtSimpleVs4VectorAverage->Fill(ComputeMt4VectorAverage(clv1, clv2, clv3), ComputeMtSimple(clv1, clv2, clv3));
 
         dlmR12R312->Fill(sqrt(r12_squared), sqrt(r3_12_squared));
@@ -1525,15 +1532,15 @@ FragCorr = 1;
           counter_3f++;
 
           // Non-relativistic calculation
-          double rStar12 = sqrt(pow(v_r1[0] - v_r2[0], 2) + pow(v_r1[1] - v_r2[1], 2) + pow(v_r1[2] - v_r2[2], 2));
-          double rStar13 = sqrt(pow(v_r1[0] - v_r3[0], 2) + pow(v_r1[1] - v_r3[1], 2) + pow(v_r1[2] - v_r3[2], 2));
-          double rStar23 = sqrt(pow(v_r2[0] - v_r3[0], 2) + pow(v_r2[1] - v_r3[1], 2) + pow(v_r2[2] - v_r3[2], 2));
+          // double rStar12 = sqrt(pow(v_r1[0] - v_r2[0], 2) + pow(v_r1[1] - v_r2[1], 2) + pow(v_r1[2] - v_r2[2], 2));
+          // double rStar13 = sqrt(pow(v_r1[0] - v_r3[0], 2) + pow(v_r1[1] - v_r3[1], 2) + pow(v_r1[2] - v_r3[2], 2));
+          // double rStar23 = sqrt(pow(v_r2[0] - v_r3[0], 2) + pow(v_r2[1] - v_r3[1], 2) + pow(v_r2[2] - v_r3[2], 2));
           
 
           if (true) { // TODO implement case for different particles
-            dlmKStarInTriplets->Fill(kstar12);
-            dlmKStarInTriplets->Fill(kstar13);
-            dlmKStarInTriplets->Fill(kstar23);
+            dlmKStarInTriplets->Fill(kStar12);
+            dlmKStarInTriplets->Fill(kStar13);
+            dlmKStarInTriplets->Fill(kStar23);
 
             dlmRStarInTriplets->Fill(rStar12);
             dlmRStarInTriplets->Fill(rStar13);
