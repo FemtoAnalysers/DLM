@@ -238,6 +238,7 @@ public:
   DLM_Histo<float>* GetKStarInTriplets() const { return this->dlmKStarInTriplets; };
   DLM_Histo<float>* GetKStarInTripletsVsQ3() const { return this->dlmKStarInTripletsVsQ3; };
   DLM_Histo<float>* GetRStarInTriplets() const { return this->dlmRStarInTriplets; };
+  DLM_Histo<float>* GetFemtoPhiVsRho() const { return this->dlmFemtoPhiVsRho; };
   DLM_Histo<float>* GetFemtoRStarInTriplets() const { return this->dlmFemtoRStarInTriplets; };
 
   unsigned Ghetto_NumMtBins;
@@ -435,6 +436,7 @@ unsigned GenerateEventTEMP();
   DLM_Histo<float>* dlmKStarInTripletsVsQ3; //
 
   // 3B femto histograms filled only for triplets in the femto region (Q3 < thr)
+  DLM_Histo<float>* dlmFemtoPhiVsRho;
   DLM_Histo<float>* dlmFemtoRStarInTriplets;
 
   void GhettoInit();
