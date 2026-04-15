@@ -1502,23 +1502,11 @@ FragCorr = 1;
 
         #pragma omp critical
         {
-        int NumPrims = 0;
-        NumPrims += prt_cm[0].IsUsefulProduct();
-        NumPrims += prt_cm[1].IsUsefulProduct();
-        NumPrims += prt_cm[2].IsUsefulProduct();
-        static int counter_3 = 0;
         Ghetto_kstar_rstar->Fill(Q3,hyp_rad);
         Ghetto_kstar_rstar_mT->Fill(Q3,hyp_rad,mT);
-        counter_3++;
         LOG(DEBUG, "Triplet: Q: " << std::setprecision(2) << Q
           << "  hyp_rad: " << std::setprecision(2) << hyp_rad
           << "  mT: " << std::setprecision(2) << mT);
-        static int counter_3f = 0;
-
-        // Calculate k* of pairs inside the triplet
-        // double kstar12 = ComputeKstar(*prt_lab[0].Cats(), *prt_lab[1].Cats());
-        // double kstar13 = ComputeKstar(*prt_lab[0].Cats(), *prt_lab[2].Cats());
-        // double kstar23 = ComputeKstar(*prt_lab[1].Cats(), *prt_lab[2].Cats());
 
         dlmKStarInTripletsVsQ3->Fill(Q3, kStar12);
         dlmKStarInTripletsVsQ3->Fill(Q3, kStar13);
@@ -1526,26 +1514,19 @@ FragCorr = 1;
         dlmMtSimpleVs4VectorAverage->Fill(ComputeMt4VectorAverage(clv1, clv2, clv3), ComputeMtSimple(clv1, clv2, clv3));
 
         dlmR12R312->Fill(sqrt(r12_squared), sqrt(r3_12_squared));
+        dlmPhiVsRho->Fill(hyp_rad, hyp_angle);
+        dlmRhoVsMt->Fill(mT,hyp_rad);
+
+        if (true) { // TODO implement case for different particles
+          dlmKStarInTriplets->Fill(kStar12);
+          dlmKStarInTriplets->Fill(kStar13);
+          dlmKStarInTriplets->Fill(kStar23);
+
+          dlmRStarInTriplets->Fill(rStar12);
+          dlmRStarInTriplets->Fill(rStar13);
+          dlmRStarInTriplets->Fill(rStar23);
+        }
         if(Q3<FemtoLimit){
-          dlmPhiVsRho->Fill(hyp_rad, hyp_angle);
-          dlmRhoVsMt->Fill(mT,hyp_rad);
-          counter_3f++;
-
-          // Non-relativistic calculation
-          // double rStar12 = sqrt(pow(v_r1[0] - v_r2[0], 2) + pow(v_r1[1] - v_r2[1], 2) + pow(v_r1[2] - v_r2[2], 2));
-          // double rStar13 = sqrt(pow(v_r1[0] - v_r3[0], 2) + pow(v_r1[1] - v_r3[1], 2) + pow(v_r1[2] - v_r3[2], 2));
-          // double rStar23 = sqrt(pow(v_r2[0] - v_r3[0], 2) + pow(v_r2[1] - v_r3[1], 2) + pow(v_r2[2] - v_r3[2], 2));
-          
-
-          if (true) { // TODO implement case for different particles
-            dlmKStarInTriplets->Fill(kStar12);
-            dlmKStarInTriplets->Fill(kStar13);
-            dlmKStarInTriplets->Fill(kStar23);
-
-            dlmRStarInTriplets->Fill(rStar12);
-            dlmRStarInTriplets->Fill(rStar13);
-            dlmRStarInTriplets->Fill(rStar23);
-          }
         }
         }
         LOG(DEBUG, "End of 3B calculation");
