@@ -250,6 +250,7 @@ CECA::CECA(const TREPNI& database,const std::vector<std::string>& list_of_partic
   dlmKStarInTriplets = NULL;
   dlmKStarInTripletsVsQ3 = NULL;
   dlmRStarInTriplets = NULL;
+  dlmFemtoPhiVsRho = NULL;
   dlmFemtoRStarInTriplets = NULL;
 
   Ghetto_rstar = NULL;
@@ -358,6 +359,7 @@ CECA::~CECA(){
   if(dlmKStarInTriplets){delete dlmKStarInTriplets; dlmKStarInTriplets=NULL;}
   if(dlmKStarInTripletsVsQ3){delete dlmKStarInTripletsVsQ3; dlmKStarInTripletsVsQ3=NULL;}
   if(dlmRStarInTriplets){delete dlmRStarInTriplets; dlmRStarInTriplets=NULL;}
+  if(dlmFemtoPhiVsRho){delete dlmFemtoPhiVsRho; dlmFemtoPhiVsRho=NULL;}
   if(dlmFemtoRStarInTriplets){delete dlmFemtoRStarInTriplets; dlmFemtoRStarInTriplets=NULL;}
 
   if(Ghetto_rstar){delete Ghetto_rstar; Ghetto_rstar=NULL;}
@@ -1529,6 +1531,7 @@ FragCorr = 1;
           dlmRStarInTriplets->Fill(rStar23);
         }
         if(Q3<FemtoLimit){
+          dlmFemtoPhiVsRho->Fill(hyp_rad, hyp_angle);
           dlmFemtoRStarInTriplets->Fill(rStar12);
           dlmFemtoRStarInTriplets->Fill(rStar13);
           dlmFemtoRStarInTriplets->Fill(rStar23);
@@ -2604,6 +2607,13 @@ void CECA::GhettoInit(){
       dlmRStarInTriplets->SetUp(0, 200, 0, 2000);
       dlmRStarInTriplets->Initialize();
   }
+
+  if(dlmFemtoPhiVsRho) delete dlmFemtoPhiVsRho;
+  dlmFemtoPhiVsRho = new DLM_Histo<float>();
+  dlmFemtoPhiVsRho->SetUp(2);
+  dlmFemtoPhiVsRho->SetUp(0, 200, 0, 20);
+  dlmFemtoPhiVsRho->SetUp(1, 200, 0, M_PI / 2);
+  dlmFemtoPhiVsRho->Initialize();
 
   if(dlmFemtoRStarInTriplets) delete dlmFemtoRStarInTriplets;
   if (ListOfParticles.size() == 3) {
