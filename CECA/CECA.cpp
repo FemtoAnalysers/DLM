@@ -250,6 +250,7 @@ CECA::CECA(const TREPNI& database,const std::vector<std::string>& list_of_partic
   dlmKStarInTriplets = NULL;
   dlmKStarInTripletsVsQ3 = NULL;
   dlmRStarInTriplets = NULL;
+  dlmFemtoRStarInTriplets = NULL;
 
   Ghetto_rstar = NULL;
   Ghetto_rcore = NULL;
@@ -357,6 +358,7 @@ CECA::~CECA(){
   if(dlmKStarInTriplets){delete dlmKStarInTriplets; dlmKStarInTriplets=NULL;}
   if(dlmKStarInTripletsVsQ3){delete dlmKStarInTripletsVsQ3; dlmKStarInTripletsVsQ3=NULL;}
   if(dlmRStarInTriplets){delete dlmRStarInTriplets; dlmRStarInTriplets=NULL;}
+  if(dlmFemtoRStarInTriplets){delete dlmFemtoRStarInTriplets; dlmFemtoRStarInTriplets=NULL;}
 
   if(Ghetto_rstar){delete Ghetto_rstar; Ghetto_rstar=NULL;}
   if(Ghetto_rcore){delete Ghetto_rcore; Ghetto_rcore=NULL;}
@@ -1527,6 +1529,9 @@ FragCorr = 1;
           dlmRStarInTriplets->Fill(rStar23);
         }
         if(Q3<FemtoLimit){
+          dlmFemtoRStarInTriplets->Fill(rStar12);
+          dlmFemtoRStarInTriplets->Fill(rStar13);
+          dlmFemtoRStarInTriplets->Fill(rStar23);
         }
         }
         LOG(DEBUG, "End of 3B calculation");
@@ -2598,6 +2603,34 @@ void CECA::GhettoInit(){
       dlmRStarInTriplets->SetUp(1);
       dlmRStarInTriplets->SetUp(0, 200, 0, 2000);
       dlmRStarInTriplets->Initialize();
+  }
+
+  if(dlmFemtoRStarInTriplets) delete dlmFemtoRStarInTriplets;
+  if (ListOfParticles.size() == 3) {
+    if(ListOfParticles[0] == ListOfParticles[1] && ListOfParticles[1] == ListOfParticles[2]) {
+      dlmFemtoRStarInTriplets = new DLM_Histo<float>();
+      dlmFemtoRStarInTriplets->SetUp(1);
+      dlmFemtoRStarInTriplets->SetUp(0, 200, 0, 20);
+      dlmFemtoRStarInTriplets->Initialize();
+    } else if (ListOfParticles[0] != ListOfParticles[1] && ListOfParticles[1] != ListOfParticles[2]) {
+      dlmFemtoRStarInTriplets = new DLM_Histo<float>();
+      dlmFemtoRStarInTriplets->SetUp(3);
+      dlmFemtoRStarInTriplets->SetUp(0, 200, 0, 20);
+      dlmFemtoRStarInTriplets->SetUp(1, 200, 0, 20);
+      dlmFemtoRStarInTriplets->SetUp(2, 200, 0, 20);
+      dlmFemtoRStarInTriplets->Initialize();
+    } else {
+      dlmFemtoRStarInTriplets = new DLM_Histo<float>();
+      dlmFemtoRStarInTriplets->SetUp(2);
+      dlmFemtoRStarInTriplets->SetUp(0, 200, 0, 20);
+      dlmFemtoRStarInTriplets->SetUp(1, 200, 0, 20);
+      dlmFemtoRStarInTriplets->Initialize();
+    }
+  } else { // Leave empty histogram
+      dlmFemtoRStarInTriplets = new DLM_Histo<float>();
+      dlmFemtoRStarInTriplets->SetUp(1);
+      dlmFemtoRStarInTriplets->SetUp(0, 200, 0, 2000);
+      dlmFemtoRStarInTriplets->Initialize();
   }
 
   if(Ghetto_RP_AngleRcP1) delete Ghetto_RP_AngleRcP1;
