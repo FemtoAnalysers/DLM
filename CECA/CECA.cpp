@@ -250,8 +250,13 @@ CECA::CECA(const TREPNI& database,const std::vector<std::string>& list_of_partic
   dlmKStarInTriplets = NULL;
   dlmKStarInTripletsVsQ3 = NULL;
   dlmRStarInTriplets = NULL;
+  dlmFemtoR12R312 = NULL;
   dlmFemtoPhiVsRho = NULL;
   dlmFemtoRStarInTriplets = NULL;
+  dlmFemtoMtSimpleVs4VectorAverage = NULL;
+  dlmFemtoMtSimpleVs4VectorAverage = NULL;
+  dlmFemtoRhoVsMt = NULL;
+  dlmFemtoKStarInTriplets = NULL;
 
   Ghetto_rstar = NULL;
   Ghetto_rcore = NULL;
@@ -359,8 +364,12 @@ CECA::~CECA(){
   if(dlmKStarInTriplets){delete dlmKStarInTriplets; dlmKStarInTriplets=NULL;}
   if(dlmKStarInTripletsVsQ3){delete dlmKStarInTripletsVsQ3; dlmKStarInTripletsVsQ3=NULL;}
   if(dlmRStarInTriplets){delete dlmRStarInTriplets; dlmRStarInTriplets=NULL;}
+  if(dlmFemtoR12R312){delete dlmFemtoR12R312; dlmFemtoR12R312=NULL;}
   if(dlmFemtoPhiVsRho){delete dlmFemtoPhiVsRho; dlmFemtoPhiVsRho=NULL;}
   if(dlmFemtoRStarInTriplets){delete dlmFemtoRStarInTriplets; dlmFemtoRStarInTriplets=NULL;}
+  if(dlmFemtoMtSimpleVs4VectorAverage){delete dlmFemtoMtSimpleVs4VectorAverage; dlmFemtoMtSimpleVs4VectorAverage=NULL;}
+  if(dlmFemtoRhoVsMt){delete dlmFemtoRhoVsMt; dlmFemtoRhoVsMt=NULL;}
+  if(dlmFemtoKStarInTriplets){delete dlmFemtoKStarInTriplets; dlmFemtoKStarInTriplets=NULL;}
 
   if(Ghetto_rstar){delete Ghetto_rstar; Ghetto_rstar=NULL;}
   if(Ghetto_rcore){delete Ghetto_rcore; Ghetto_rcore=NULL;}
@@ -1530,11 +1539,20 @@ FragCorr = 1;
           dlmRStarInTriplets->Fill(rStar13);
           dlmRStarInTriplets->Fill(rStar23);
         }
+
         if(Q3<FemtoLimit){
+          dlmFemtoR12R312->Fill(sqrt(r12_squared), sqrt(r3_12_squared));
+          dlmFemtoMtSimpleVs4VectorAverage->Fill(ComputeMt4VectorAverage(clv1, clv2, clv3), ComputeMtSimple(clv1, clv2, clv3));
           dlmFemtoPhiVsRho->Fill(hyp_rad, hyp_angle);
+          dlmFemtoRhoVsMt->Fill(mT,hyp_rad);
+
           dlmFemtoRStarInTriplets->Fill(rStar12);
           dlmFemtoRStarInTriplets->Fill(rStar13);
           dlmFemtoRStarInTriplets->Fill(rStar23);
+
+          dlmFemtoKStarInTriplets->Fill(kStar12);
+          dlmFemtoKStarInTriplets->Fill(kStar13);
+          dlmFemtoKStarInTriplets->Fill(kStar23);
         }
         }
         LOG(DEBUG, "End of 3B calculation");
@@ -2608,12 +2626,66 @@ void CECA::GhettoInit(){
       dlmRStarInTriplets->Initialize();
   }
 
+  if(dlmFemtoR12R312) delete dlmFemtoR12R312;
+  dlmFemtoR12R312 = new DLM_Histo<float>();
+  dlmFemtoR12R312->SetUp(2);
+  dlmFemtoR12R312->SetUp(0, 200, 0, 20);
+  dlmFemtoR12R312->SetUp(1, 200, 0, 20);
+  dlmFemtoR12R312->Initialize();
+
+  if(dlmFemtoMtSimpleVs4VectorAverage) delete dlmFemtoMtSimpleVs4VectorAverage;
+  dlmFemtoMtSimpleVs4VectorAverage = new DLM_Histo<float>();
+  dlmFemtoMtSimpleVs4VectorAverage->SetUp(2);
+  dlmFemtoMtSimpleVs4VectorAverage->SetUp(0, 200, 0, 5000);
+  dlmFemtoMtSimpleVs4VectorAverage->SetUp(1, 200, 0, 5000);
+  dlmFemtoMtSimpleVs4VectorAverage->Initialize();
+
   if(dlmFemtoPhiVsRho) delete dlmFemtoPhiVsRho;
   dlmFemtoPhiVsRho = new DLM_Histo<float>();
   dlmFemtoPhiVsRho->SetUp(2);
   dlmFemtoPhiVsRho->SetUp(0, 200, 0, 20);
   dlmFemtoPhiVsRho->SetUp(1, 200, 0, M_PI / 2);
   dlmFemtoPhiVsRho->Initialize();
+
+  if(dlmFemtoRhoVsMt) delete dlmFemtoRhoVsMt;
+  dlmFemtoRhoVsMt = new DLM_Histo<float>();
+  dlmFemtoRhoVsMt->SetUp(2);
+  if(Ghetto_MtBins){
+    dlmFemtoRhoVsMt->SetUp(0,Ghetto_NumMtBins,Ghetto_MtBins);
+  }
+  else{
+    dlmFemtoRhoVsMt->SetUp(0,Ghetto_NumMtBins,Ghetto_MtMin,Ghetto_MtMax);
+  }
+  dlmFemtoRhoVsMt->SetUp(1,Ghetto_NumRadBins,Ghetto_RadMin,Ghetto_RadMax);
+  dlmFemtoRhoVsMt->Initialize();
+
+  if(dlmFemtoKStarInTriplets) delete dlmFemtoKStarInTriplets;
+  if (ListOfParticles.size() == 3) {
+    if(ListOfParticles[0] == ListOfParticles[1] && ListOfParticles[1] == ListOfParticles[2]) {
+      dlmFemtoKStarInTriplets = new DLM_Histo<float>();
+      dlmFemtoKStarInTriplets->SetUp(1);
+      dlmFemtoKStarInTriplets->SetUp(0, 200, 0, 2000);
+      dlmFemtoKStarInTriplets->Initialize();
+    } else if (ListOfParticles[0] != ListOfParticles[1] && ListOfParticles[1] != ListOfParticles[2]) {
+      dlmFemtoKStarInTriplets = new DLM_Histo<float>();
+      dlmFemtoKStarInTriplets->SetUp(3);
+      dlmFemtoKStarInTriplets->SetUp(0, 200, 0, 2000);
+      dlmFemtoKStarInTriplets->SetUp(1, 200, 0, 2000);
+      dlmFemtoKStarInTriplets->SetUp(2, 200, 0, 2000);
+      dlmFemtoKStarInTriplets->Initialize();
+    } else {
+      dlmFemtoKStarInTriplets = new DLM_Histo<float>();
+      dlmFemtoKStarInTriplets->SetUp(2);
+      dlmFemtoKStarInTriplets->SetUp(0, 200, 0, 2000);
+      dlmFemtoKStarInTriplets->SetUp(1, 200, 0, 2000);
+      dlmFemtoKStarInTriplets->Initialize();
+    }
+  } else { // Leave empty histogram
+      dlmFemtoKStarInTriplets = new DLM_Histo<float>();
+      dlmFemtoKStarInTriplets->SetUp(1);
+      dlmFemtoKStarInTriplets->SetUp(0, 200, 0, 2000);
+      dlmFemtoKStarInTriplets->Initialize();
+  }
 
   if(dlmFemtoRStarInTriplets) delete dlmFemtoRStarInTriplets;
   if (ListOfParticles.size() == 3) {
