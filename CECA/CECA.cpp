@@ -218,6 +218,7 @@ CECA::CECA(const TREPNI& database,const std::vector<std::string>& list_of_partic
   TargetYield = 100000;
   AchievedYield = 0;
   FemtoLimit = 200;
+  FemtoLimit3B = 800;
   UpperLimit = 300;
   EMULT = 0;
   SrcCnv = 1;
@@ -674,6 +675,11 @@ void CECA::SetFemtoRegion(const float& femto, const float& info){
   FemtoLimit = femto;
   UpperLimit = info;
 }
+
+void CECA::SetFemtoRegion3B(const float& value){
+  FemtoLimit3B = value;
+}
+
 double CECA::GetFemtoLimit(){
   return FemtoLimit;
 }
@@ -1509,7 +1515,7 @@ FragCorr = 1;
         double Q3 = sqrt(alpha * dot(v_k12, v_k12) + 2 * beta * dot(v_k12, v_k3_12) + gamma * dot(v_k3_12, v_k3_12));
         LOG(DEBUG, "Q: " << Q << "  Q3: " << Q3);
 
-        if(Q3<FemtoLimit){
+        if(Q3<FemtoLimit3B){
           FemtoPermutations++;
         }
 
@@ -1540,7 +1546,7 @@ FragCorr = 1;
           dlmRStarInTriplets->Fill(rStar23);
         }
 
-        if(Q3<FemtoLimit){
+        if(Q3<FemtoLimit3B){
           dlmFemtoR12R312->Fill(sqrt(r12_squared), sqrt(r3_12_squared));
           dlmFemtoMtSimpleVs4VectorAverage->Fill(ComputeMt4VectorAverage(clv1, clv2, clv3), ComputeMtSimple(clv1, clv2, clv3));
           dlmFemtoPhiVsRho->Fill(hyp_rad, hyp_angle);

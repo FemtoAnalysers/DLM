@@ -146,6 +146,7 @@ public:
   //info the upper limit until which information is still saved
   //N.B. the corresponding Q3 etc is automatically evaluated, here its only k*!
   void SetFemtoRegion(const float& femto, const float& info=0);//done
+  void SetFemtoRegion3B(const float& femto);
   double GetFemtoLimit();
   //higher number should make for less CPU time
   //questions about accuracy though, so far no effect seen
@@ -388,6 +389,8 @@ private:
   //the k* (MeV) below which a FemtoPair is concidered such
   //N.B. for more particles QN = sqrt(N*kstarlimit)
   float FemtoLimit;
+  //the Q3 (MeV) below which a FemtoTriplet is concidered such
+  float FemtoLimit3B;
   //the upper limit refers to the femto limit, and information about
   //all particle pairs is still saved, e.g. for systematics
   float UpperLimit;
