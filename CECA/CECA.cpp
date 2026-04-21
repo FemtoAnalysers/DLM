@@ -39,6 +39,13 @@ CecaParticle::CecaParticle(const CecaParticle &other){
   *this=other;
 }
 
+double ComputeMt4VectorAverage(CatsLorentzVector* p1, CatsLorentzVector* p2) {
+    double E = p1->GetE() + p2->GetE();
+    double pz = p1->GetPz() + p2->GetPz();
+
+    return sqrt(E * E - pz * pz) / 2;
+}
+
 double ComputeMtSimple(CatsLorentzVector* p1, CatsLorentzVector* p2, CatsLorentzVector* p3) {
     // Generalization of the usual formula for pp
     double m1 = p1->Mag();
@@ -254,6 +261,7 @@ CECA::CECA(const TREPNI& database,const std::vector<std::string>& list_of_partic
   dlmFemtoR12R312 = NULL;
   dlmFemtoPhiVsRho = NULL;
   dlmFemtoRStarInTriplets = NULL;
+  dlmFemtoRStarFemtoPairsInTripletsVsMt = NULL;
   dlmFemtoMtSimpleVs4VectorAverage = NULL;
   dlmFemtoMtSimpleVs4VectorAverage = NULL;
   dlmFemtoRhoVsMt = NULL;
@@ -368,6 +376,7 @@ CECA::~CECA(){
   if(dlmFemtoR12R312){delete dlmFemtoR12R312; dlmFemtoR12R312=NULL;}
   if(dlmFemtoPhiVsRho){delete dlmFemtoPhiVsRho; dlmFemtoPhiVsRho=NULL;}
   if(dlmFemtoRStarInTriplets){delete dlmFemtoRStarInTriplets; dlmFemtoRStarInTriplets=NULL;}
+  if(dlmFemtoRStarFemtoPairsInTripletsVsMt){delete dlmFemtoRStarFemtoPairsInTripletsVsMt; dlmFemtoRStarFemtoPairsInTripletsVsMt=NULL;}
   if(dlmFemtoMtSimpleVs4VectorAverage){delete dlmFemtoMtSimpleVs4VectorAverage; dlmFemtoMtSimpleVs4VectorAverage=NULL;}
   if(dlmFemtoRhoVsMt){delete dlmFemtoRhoVsMt; dlmFemtoRhoVsMt=NULL;}
   if(dlmFemtoKStarInTriplets){delete dlmFemtoKStarInTriplets; dlmFemtoKStarInTriplets=NULL;}
@@ -1559,6 +1568,19 @@ FragCorr = 1;
           dlmFemtoKStarInTriplets->Fill(kStar12);
           dlmFemtoKStarInTriplets->Fill(kStar13);
           dlmFemtoKStarInTriplets->Fill(kStar23);
+
+          if (kStar12 < FemtoLimit) {
+            double mT = ComputeMt4VectorAverage(clv1, clv2);
+            dlmFemtoRStarFemtoPairsInTripletsVsMt->Fill(mT, rStar12);
+          }
+          if (kStar13 < FemtoLimit) {
+            double mT = ComputeMt4VectorAverage(clv1, clv3);
+            dlmFemtoRStarFemtoPairsInTripletsVsMt->Fill(mT, rStar13);
+          }
+          if (kStar23 < FemtoLimit) {
+            double mT = ComputeMt4VectorAverage(clv2, clv3);
+            dlmFemtoRStarFemtoPairsInTripletsVsMt->Fill(mT, rStar23);
+          }
         }
         }
         LOG(DEBUG, "End of 3B calculation");
@@ -2719,6 +2741,32 @@ void CECA::GhettoInit(){
       dlmFemtoRStarInTriplets->SetUp(1);
       dlmFemtoRStarInTriplets->SetUp(0, 200, 0, 2000);
       dlmFemtoRStarInTriplets->Initialize();
+  }
+
+  if(dlmFemtoRStarFemtoPairsInTripletsVsMt) delete dlmFemtoRStarFemtoPairsInTripletsVsMt;
+  if (ListOfParticles.size() == 3) {
+    if(ListOfParticles[0] == ListOfParticles[1] && ListOfParticles[1] == ListOfParticles[2]) {
+      dlmFemtoRStarFemtoPairsInTripletsVsMt = new DLM_Histo<float>();
+      dlmFemtoRStarFemtoPairsInTripletsVsMt->SetUp(2);
+      if(Ghetto_MtBins){
+        dlmFemtoRStarFemtoPairsInTripletsVsMt->SetUp(0,Ghetto_NumMtBins,Ghetto_MtBins);
+      }
+      else{
+        dlmFemtoRStarFemtoPairsInTripletsVsMt->SetUp(0,Ghetto_NumMtBins,Ghetto_MtMin,Ghetto_MtMax);
+      }
+      dlmFemtoRStarFemtoPairsInTripletsVsMt->SetUp(1, 200, 0, 20);
+      dlmFemtoRStarFemtoPairsInTripletsVsMt->Initialize();
+    } else if (ListOfParticles[0] != ListOfParticles[1] && ListOfParticles[1] != ListOfParticles[2]) {
+      throw std::logic_error("dlmFemtoRStarFemtoPairsInTripletsVsMt is not implemented for particles with non-identical particles");
+    } else {
+      throw std::logic_error("dlmFemtoRStarFemtoPairsInTripletsVsMt is not implemented for particles with non-identical particles");
+    }
+  } else { // Leave empty histogram
+      dlmFemtoRStarFemtoPairsInTripletsVsMt = new DLM_Histo<float>();
+      dlmFemtoRStarFemtoPairsInTripletsVsMt->SetUp(2);
+      dlmFemtoRStarFemtoPairsInTripletsVsMt->SetUp(1, 10, 0, 10000);
+      dlmFemtoRStarFemtoPairsInTripletsVsMt->SetUp(0, 200, 0, 2000);
+      dlmFemtoRStarFemtoPairsInTripletsVsMt->Initialize();
   }
 
   if(Ghetto_RP_AngleRcP1) delete Ghetto_RP_AngleRcP1;
