@@ -964,6 +964,7 @@ unsigned CECA::GenerateEvent(const unsigned& ThId){
         Primordial.push_back(new CecaParticle());
 
         TreParticle* tre = Database.GetRandomParticle(RanGen[ThId]);
+        LOG(DEBUG, "Selected primordial: " << tre->GetName());
         Primordial.back()->SetTrepni(tre);
 
         //check if we need this guy, i.e. is it, or one of its daughters,
@@ -995,6 +996,7 @@ unsigned CECA::GenerateEvent(const unsigned& ThId){
 
         //the particle will NOT be used
         if(Useless_particle){
+          LOG(DEBUG, "Rejecting particle as it is neither primordial nor decay product of interest");
           delete Primordial.back();
           Primordial.pop_back();
         }
@@ -1054,6 +1056,7 @@ unsigned CECA::GenerateEvent(const unsigned& ThId){
     }//the inifinite while loop
 
 
+    LOG(DEBUG, "Looping over " << Primordial.size() << " primordial particles");
     for(CecaParticle* primordial : Primordial){
       //--- SAMPLE THE MOMENTUM ---//
       double axisValues[3];
@@ -1274,6 +1277,7 @@ FragCorr = 1;
           primordial->Decay()->GetDaughterMasses(),
           PropagateMother);
 
+        LOG(DEBUG, "Processing a resonance");
         for(unsigned char nd=0; nd<primordial->Decay()->GetNumDaughters(); nd++){
           if(ParticleInList(primordial->Decay()->GetDaughter(nd))){
             Primary.push_back(new CecaParticle());
@@ -1303,6 +1307,7 @@ FragCorr = 1;
       }
       else{
         Primary.push_back(new CecaParticle());
+        LOG(DEBUG, "Adding a new primordial particle");
         *Primary.back() = *primordial;
         if(!Primary.back()->WithinAcceptance()){
           delete Primary.back();
@@ -1340,6 +1345,7 @@ FragCorr = 1;
     //the length SDIM represents the number of particles in each multiplet
     //e.g. 5 particles, SDIM=3 has to build all permutations: 012,013,014,023,024,034,123,124,134,234
     std::vector<std::vector<unsigned>> Permutations = BinomialPermutations(Primary.size(),SDIM);
+    LOG(DEBUG, "primaries: " << Primary.size() << "  perms: " << Permutations.size() << "  source dim: " << int(SDIM));
     //the pid is a single permutation, e.g. {0,1,2}
     unsigned FemtoPermutations = 0;
     for(std::vector<unsigned> pid : Permutations){
@@ -1417,6 +1423,17 @@ FragCorr = 1;
           }
         }
       }
+
+      double pxx = 0;
+      double pyy = 0;
+      double pzz = 0;
+      for (int iPart = 0; iPart < SDIM; iPart++) {
+        pxx += prt_cm[iPart].Cats()->GetPx();
+        pyy += prt_cm[iPart].Cats()->GetPy();
+        pzz += prt_cm[iPart].Cats()->GetPz();
+      }
+
+      LOG(DEBUG, "Total momentum in CM: px: " << pxx << "  py: " << pyy << "  pz: " << pzz);
 
       CatsLorentzVector cm_sumQA;
       for(unsigned char ud=0; ud<SDIM; ud++){
@@ -1524,10 +1541,6 @@ FragCorr = 1;
         double Q3 = sqrt(alpha * dot(v_k12, v_k12) + 2 * beta * dot(v_k12, v_k3_12) + gamma * dot(v_k3_12, v_k3_12));
         LOG(DEBUG, "Q: " << Q << "  Q3: " << Q3);
 
-        if(Q3<FemtoLimit3B){
-          FemtoPermutations++;
-        }
-
         #pragma omp critical
         {
         Ghetto_kstar_rstar->Fill(Q3,hyp_rad);
@@ -1556,6 +1569,8 @@ FragCorr = 1;
         }
 
         if(Q3<FemtoLimit3B){
+          FemtoPermutations++;
+          LOG(DEBUG, "Triplet inside femto region: Q3 < " << FemtoLimit3B);
           dlmFemtoR12R312->Fill(sqrt(r12_squared), sqrt(r3_12_squared));
           dlmFemtoMtSimpleVs4VectorAverage->Fill(ComputeMt4VectorAverage(clv1, clv2, clv3), ComputeMtSimple(clv1, clv2, clv3));
           dlmFemtoPhiVsRho->Fill(hyp_rad, hyp_angle);
@@ -1570,6 +1585,7 @@ FragCorr = 1;
           dlmFemtoKStarInTriplets->Fill(kStar23);
 
           if (kStar12 < FemtoLimit) {
+            LOG(DEBUG, "Pair (1,2) in femto triplet inside 2B femto region: k* < " << FemtoLimit);
             double mT = ComputeMt4VectorAverage(clv1, clv2);
             dlmFemtoRStarFemtoPairsInTripletsVsMt->Fill(mT, rStar12);
           }
