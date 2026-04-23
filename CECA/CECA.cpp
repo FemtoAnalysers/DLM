@@ -16,6 +16,24 @@
 #include <array>
 #include <iomanip>
 
+void FillOrigin(std::map<std::string, unsigned> &origins, CecaParticle* particles, int size) {
+    LOG(DEBUG, "Filling the origin of the particles");
+
+    std::string key = "";
+    for (int iPart = 0; iPart < size; iPart++) {
+        LOG(DEBUG, "iPart: " << iPart << " useful: " << particles[iPart].IsUseful());
+        if (!particles[iPart].IsUseful()) {
+            LOG(DEBUG, "not useful");
+            return;
+        }
+
+        key += particles[iPart].IsUsefulPrimordial() ? "p" : "s";
+    }
+    
+    origins.at(key)++;
+    LOG(DEBUG, "Incremented '" << key << "' to " << origins.at(key));
+}
+
 std::map<std::string, eMtMethod> mTMethodFromString = {
   {"kSimple", kSimple},
   {"kHarmonic", kHarmonic},
@@ -1958,6 +1976,10 @@ FemtoPermutations++;
   //printf("Particles (list): %s %s\n",ListOfParticles.at(0).c_str(),ListOfParticles.at(1).c_str());
   //printf("Particles (slct): %s %s\n",prt_cm[0].Trepni()->GetName().c_str(),prt_cm[1].Trepni()->GetName().c_str());
   //printf("Categorized as ");
+  LOG(DEBUG, "Filling origin");
+  
+  FillOrigin(femtoParticleOrigin, prt_cm, SDIM);
+
   if(prt_cm[0].IsUsefulPrimordial()&&prt_cm[1].IsUsefulPrimordial()){
     Ghetto_kstar_rstar_PP->Fill(kstar,rstar);
     //printf("PP\n");
@@ -2558,6 +2580,27 @@ if(!prim1&&false){
 }
 
 void CECA::GhettoInit(){
+  // p: primary, s: secondary (from resonance)
+  if (SDIM == 2) {
+      femtoParticleOrigin = {
+        {"pp", 0},
+        {"ps", 0},
+        {"sp", 0},
+        {"ss", 0},
+      };
+  } else if (SDIM ==  3) {
+      femtoParticleOrigin = {
+        {"ppp", 0},
+        {"pps", 0},
+        {"psp", 0},
+        {"pss", 0},
+        {"spp", 0},
+        {"sps", 0},
+        {"ssp", 0},
+        {"sss", 0},
+      };
+  }
+
   // 3B histograms
   if(dlmR12R312) delete dlmR12R312;
   dlmR12R312 = new DLM_Histo<float>();
