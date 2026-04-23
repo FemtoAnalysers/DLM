@@ -336,6 +336,7 @@ public:
   //pp / pr / rp / rr
   unsigned GhettoFemtoPrimReso[4];
   unsigned GhettoPrimReso[4];
+  std::map<std::string, unsigned> femtoParticleOrigin;
   //unsigned GhettoSpPrim[2];
 
 
