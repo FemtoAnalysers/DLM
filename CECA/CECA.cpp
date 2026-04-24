@@ -807,7 +807,7 @@ void CECA::GoBabyGo(const unsigned& num_threads){
 
   GhettoInit();
   if(!Database.QA()){
-      return;
+    LOG(FATAL, "Particle database QA did not pass");
   }
   bool DynamicThreads;
   if(num_threads==0){
