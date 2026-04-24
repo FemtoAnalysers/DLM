@@ -1357,7 +1357,10 @@ FragCorr = 1;
 
     }//iteration over all primordials
 
-
+    LOG(DEBUG, "Generated the following particles:");
+    for (const auto& part : Primary) {
+      LOG(DEBUG, " - useful primordial: " << part->IsUsefulPrimordial() << " - useful product: " << part->IsUsefulProduct());
+    }
     //BUILD THE MULTIPLETS, EVALUATE THEIR NUMBER AND RETURN THE CORRECT VALUE
     //the array position of each particle, which is to be used to build the multiplet
     //the length SDIM represents the number of particles in each multiplet
@@ -1587,6 +1590,8 @@ FragCorr = 1;
         }
 
         if(Q3<FemtoLimit3B){
+          FillOrigin(femtoParticleOrigin, prt_cm, SDIM);
+
           FemtoPermutations++;
           LOG(DEBUG, "Triplet inside femto region: Q3 < " << FemtoLimit3B);
           dlmFemtoR12R312->Fill(sqrt(r12_squared), sqrt(r3_12_squared));
