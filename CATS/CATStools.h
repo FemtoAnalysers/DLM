@@ -470,8 +470,6 @@ inline std::pair<double, double> ComputeKstarRstar(const CatsLorentzVector p1,co
     p1star.Boost(pCM);
     p2star.Boost(pCM);
 
-    p1star = p1star - pCM;
-    p2star = p2star - pCM;
     auto delta = p2star - p1star;
 
     double kstar = 0.5 * delta.GetP();
