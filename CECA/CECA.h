@@ -248,6 +248,7 @@ public:
   DLM_Histo<float>* GetFemtoKStarInTriplets() const { return this->dlmFemtoKStarInTriplets; };
   DLM_Histo<float>* GetFemtoRStarInTriplets() const { return this->dlmFemtoRStarInTriplets; };
   DLM_Histo<float>* GetFemtoRStarFemtoPairsInTripletsVsMt() const { return this->dlmFemtoRStarFemtoPairsInTripletsVsMt; };
+  std::map<int, DLM_Histo<float>*> GetFemtoPairsMt() const { return this->dlmFemtoPairsMt; };
 
   unsigned Ghetto_NumMtBins;
   double Ghetto_MtMin;
@@ -450,6 +451,8 @@ unsigned GenerateEventTEMP();
   DLM_Histo<float>* dlmFemtoPhiVsRho;
   DLM_Histo<float>* dlmFemtoRStarInTriplets;
   DLM_Histo<float>* dlmFemtoRStarFemtoPairsInTripletsVsMt;
+  std::map<int, DLM_Histo<float>*> dlmFemtoPairsMt; // The integer represents the pair combination: 13 -> (part1, part3)
+
   DLM_Histo<float>* dlmFemtoR12R312;
   DLM_Histo<float>* dlmFemtoMtSimpleVs4VectorAverage;
   DLM_Histo<float>* dlmFemtoRhoVsMt;

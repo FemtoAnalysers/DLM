@@ -395,6 +395,12 @@ CECA::~CECA(){
   if(dlmFemtoPhiVsRho){delete dlmFemtoPhiVsRho; dlmFemtoPhiVsRho=NULL;}
   if(dlmFemtoRStarInTriplets){delete dlmFemtoRStarInTriplets; dlmFemtoRStarInTriplets=NULL;}
   if(dlmFemtoRStarFemtoPairsInTripletsVsMt){delete dlmFemtoRStarFemtoPairsInTripletsVsMt; dlmFemtoRStarFemtoPairsInTripletsVsMt=NULL;}
+    if(!dlmFemtoPairsMt.empty()) {
+    for (auto& [_, ptr] : dlmFemtoPairsMt) {
+        delete ptr;
+    }
+    dlmFemtoPairsMt.clear();
+  }
   if(dlmFemtoMtSimpleVs4VectorAverage){delete dlmFemtoMtSimpleVs4VectorAverage; dlmFemtoMtSimpleVs4VectorAverage=NULL;}
   if(dlmFemtoRhoVsMt){delete dlmFemtoRhoVsMt; dlmFemtoRhoVsMt=NULL;}
   if(dlmFemtoKStarInTriplets){delete dlmFemtoKStarInTriplets; dlmFemtoKStarInTriplets=NULL;}
@@ -1610,14 +1616,17 @@ FragCorr = 1;
           if (kStar12 < FemtoLimit) {
             LOG(DEBUG, "Pair (1,2) in femto triplet inside 2B femto region: k* < " << FemtoLimit);
             double mT = ComputeMt4VectorAverage(clv1, clv2);
+            dlmFemtoPairsMt[12]->Fill(mT);
             dlmFemtoRStarFemtoPairsInTripletsVsMt->Fill(mT, rStar12);
           }
           if (kStar13 < FemtoLimit) {
             double mT = ComputeMt4VectorAverage(clv1, clv3);
+            dlmFemtoPairsMt[13]->Fill(mT);
             dlmFemtoRStarFemtoPairsInTripletsVsMt->Fill(mT, rStar13);
           }
           if (kStar23 < FemtoLimit) {
             double mT = ComputeMt4VectorAverage(clv2, clv3);
+            dlmFemtoPairsMt[23]->Fill(mT);
             dlmFemtoRStarFemtoPairsInTripletsVsMt->Fill(mT, rStar23);
           }
         }
@@ -1973,6 +1982,7 @@ if(exp_file_flag){
 
 if (SDIM == 2) {
     FemtoPermutations++;
+    dlmFemtoPairsMt[12]->Fill(mT);
 }
 }//femto particles
 
@@ -2839,6 +2849,28 @@ void CECA::GhettoInit(){
       dlmFemtoRStarFemtoPairsInTripletsVsMt->SetUp(1, 10, 0, 10000);
       dlmFemtoRStarFemtoPairsInTripletsVsMt->SetUp(0, 200, 0, 2000);
       dlmFemtoRStarFemtoPairsInTripletsVsMt->Initialize();
+  }
+
+  if(!dlmFemtoPairsMt.empty()) {
+    for (auto& [_, ptr] : dlmFemtoPairsMt) {
+        delete ptr;
+    }
+    dlmFemtoPairsMt.clear();
+  }
+  dlmFemtoPairsMt[12] = new DLM_Histo<float>();
+  dlmFemtoPairsMt[12]->SetUp(1);
+  dlmFemtoPairsMt[12]->SetUp(0, 500, 0, 5000);
+  dlmFemtoPairsMt[12]->Initialize();
+  if (ListOfParticles.size() == 3) {
+    dlmFemtoPairsMt[13] = new DLM_Histo<float>();
+    dlmFemtoPairsMt[13]->SetUp(1);
+    dlmFemtoPairsMt[13]->SetUp(0, 500, 0, 5000);
+    dlmFemtoPairsMt[13]->Initialize();
+
+    dlmFemtoPairsMt[23] = new DLM_Histo<float>();
+    dlmFemtoPairsMt[23]->SetUp(1);
+    dlmFemtoPairsMt[23]->SetUp(0, 500, 0, 5000);
+    dlmFemtoPairsMt[23]->Initialize();
   }
 
   if(Ghetto_RP_AngleRcP1) delete Ghetto_RP_AngleRcP1;
