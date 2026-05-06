@@ -3,6 +3,9 @@
 #ifndef CECA_H
 #define CECA_H
 
+#include "TTree.h"
+#include "TLorentzVector.h"
+
 #include <cstddef>
 #include <string>
 #include <vector>
@@ -156,6 +159,7 @@ public:
   void SetEventMult(const unsigned short& emult=0);//done
   void SetMtMethod(std::string method);
   eMtMethod GetMtMethod();
+  TTree* GetEvents() const { return tEvents; };
 
   //flag==0 -> no export
   //else -> we always write out //kstar, rstar, mT
@@ -457,6 +461,21 @@ unsigned GenerateEventTEMP();
   DLM_Histo<float>* dlmFemtoMtSimpleVs4VectorAverage;
   DLM_Histo<float>* dlmFemtoRhoVsMt;
   DLM_Histo<float>* dlmFemtoKStarInTriplets;
+
+  TLorentzVector p1;
+  TLorentzVector p2;
+  TLorentzVector p3;
+
+  TLorentzVector x1;
+  TLorentzVector x2;
+  TLorentzVector x3;
+
+  TLorentzVector p1_mother;
+  TLorentzVector p2_mother;
+  TLorentzVector p3_mother;
+
+  TTree* tEvents;
+
   void GhettoInit();
 
 };
