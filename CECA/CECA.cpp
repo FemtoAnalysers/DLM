@@ -123,7 +123,7 @@ double CECA::ComputeMt(CatsLorentzVector* p1, CatsLorentzVector* p2, CatsLorentz
   }
   
   if (CECA::GetMtMethod() == kTripleHarmonic) {
-    ComputeMtTripleHarmonic(p1, p2, p3);
+    return ComputeMtTripleHarmonic(p1, p2, p3);
   }
   
   if (CECA::GetMtMethod() == k4VectorAverage) {
