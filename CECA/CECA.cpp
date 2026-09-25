@@ -2010,6 +2010,7 @@ if(exp_file_flag){
 
 FemtoPermutations++;
 dlmFemtoPairsMt[12]->Fill(mT);
+FillOrigin(femtoParticleOrigin, prt_cm, SDIM);
 }//femto particles
 
 //if(kstar>150 && kstar<250){
@@ -2025,10 +2026,6 @@ dlmFemtoPairsMt[12]->Fill(mT);
   //printf("Particles (list): %s %s\n",ListOfParticles.at(0).c_str(),ListOfParticles.at(1).c_str());
   //printf("Particles (slct): %s %s\n",prt_cm[0].Trepni()->GetName().c_str(),prt_cm[1].Trepni()->GetName().c_str());
   //printf("Categorized as ");
-  LOG(DEBUG, "Filling origin");
-  
-  FillOrigin(femtoParticleOrigin, prt_cm, SDIM);
-
   if(prt_cm[0].IsUsefulPrimordial()&&prt_cm[1].IsUsefulPrimordial()){
     Ghetto_kstar_rstar_PP->Fill(kstar,rstar);
     //printf("PP\n");
