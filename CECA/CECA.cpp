@@ -1674,16 +1674,10 @@ FragCorr = 1;
 #pragma omp critical
 {
 //GHETTO, works for pairs only
-if(SDIM>=2){
-    // In case of 3B fill the 2B histograms with the first 2 particles of the triplet
-    CatsLorentzVector pTot12 = *(prt_cm[0].Cats()) + *(prt_cm[1].Cats()); // Overrides the boost computed for 3B
-    LOG(DEBUG, "Boost components: (" << setprecision(2) << pTot12.GetPx() << ", " << pTot12.GetPy() << ", " << pTot12.GetPz() << ")");
-    prt_cm[0].Cats()->Boost(pTot12);
-    prt_cm[1].Cats()->Boost(pTot12);
+if(SDIM==2){
+CatsLorentzVector cm_rel = *prt_cm[1].Cats()-*prt_cm[0].Cats();
+CatsLorentzVector cm_core;
 
-    CatsLorentzVector cm_rel = *prt_cm[1].Cats()-*prt_cm[0].Cats();
-    CatsLorentzVector cm_core;
-    
 if(prt_cm[0].IsUsefulPrimordial()&&prt_cm[1].IsUsefulPrimordial()){
   cm_core = *prt_cm[1].Cats()-*prt_cm[0].Cats();
 }
@@ -1696,9 +1690,8 @@ if(prt_cm[0].IsUsefulProduct()&&prt_cm[1].IsUsefulPrimordial()){
 if(prt_cm[0].IsUsefulProduct()&&prt_cm[1].IsUsefulProduct()){
   cm_core = *prt_cm[1].Mother()-*prt_cm[0].Mother();
 }
-    
+
 double kstar = 0.5*cm_rel.GetP();
-LOG(DEBUG, "kstar old: " << kstar << "  kstar new: " << ComputeKstar(*(prt_lab[0].Cats()), *(prt_lab[1].Cats())));
 double rstar = cm_rel.GetR();
 double cos_th_star = -cm_rel.GetCosScatAngle();
 //double th_star = cm_rel.GetScatAngle();
@@ -1718,14 +1711,13 @@ if(klab<100){
   ////printf("cos_th_lab = %.3f\n",cos_th_lab);
   
 }
-auto pLab12 = *(prt_lab[0].Cats()) + *(prt_lab[1].Cats());
 double rcore = cm_core.GetR();
-//double klab = 0.5*pLab12.GetP();
-double kT = 0.5*pLab12.GetPt();
+//double klab = 0.5*boost_v.GetP();
+double kT = 0.5*boost_v.GetPt();
 double m1 = prt_cm[0].Cats()->GetMass();
 double m2 = prt_cm[1].Cats()->GetMass();
 double mavg = (m1+m2)*0.5;
-double mT = 0.5*pLab12.GetMt();
+double mT = 0.5*boost_v.GetMt();
 double mT_wrong = sqrt(kT*kT+mavg*mavg);
 
 
@@ -1982,11 +1974,11 @@ GhettoFemto_mT_mTwrong->Fill(mT,mT_wrong);
 //the heavier particle is on x
 if(prt_lab[0].Cats()->GetMass()>prt_lab[1].Cats()->GetMass()){
   GhettoFemto_pT1_pT2->Fill(prt_lab[0].Cats()->GetPt(),prt_lab[1].Cats()->GetPt());
-  GhettoFemto_pT1_div_pT->Fill(prt_lab[0].Cats()->GetPt()/pLab12.GetPt());
+  GhettoFemto_pT1_div_pT->Fill(prt_lab[0].Cats()->GetPt()/boost_v.GetPt());
 }
 else{
   GhettoFemto_pT1_pT2->Fill(prt_lab[1].Cats()->GetPt(),prt_lab[0].Cats()->GetPt());
-  GhettoFemto_pT1_div_pT->Fill(prt_lab[1].Cats()->GetPt()/pLab12.GetPt());
+  GhettoFemto_pT1_div_pT->Fill(prt_lab[1].Cats()->GetPt()/boost_v.GetPt());
 }
 //printf("%f, %f\n",prt_cm[0].Cats()->GetPt()/prt_cm[1].Cats()->GetPt(),prt_cm[0].Cats()->GetPz(),prt_lab[0].Cats()->GetPt()/prt_lab[1].Cats()->GetPt());
 
@@ -2016,10 +2008,8 @@ if(exp_file_flag){
   fclose(file_ptr);
 }
 
-if (SDIM == 2) {
-    FemtoPermutations++;
-    dlmFemtoPairsMt[12]->Fill(mT);
-}
+FemtoPermutations++;
+dlmFemtoPairsMt[12]->Fill(mT);
 }//femto particles
 
 //if(kstar>150 && kstar<250){
