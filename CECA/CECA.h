@@ -242,16 +242,10 @@ public:
   DLM_Histo<float>* GetMtSimpleVs4VectorAverage() const { return this->dlmMtSimpleVs4VectorAverage; };
   DLM_Histo<float>* GetPhiVsRho() const { return this->dlmPhiVsRho; };
   DLM_Histo<float>* GetRhoVsMt() const { return this->dlmRhoVsMt; };
-  DLM_Histo<float>* GetKStarInTriplets() const { return this->dlmKStarInTriplets; };
-  DLM_Histo<float>* GetKStarInTripletsVsQ3() const { return this->dlmKStarInTripletsVsQ3; };
-  DLM_Histo<float>* GetRStarInTriplets() const { return this->dlmRStarInTriplets; };
   DLM_Histo<float>* GetFemtoR12R312() const { return this->dlmFemtoR12R312; };
   DLM_Histo<float>* GetFemtoMtSimpleVs4VectorAverage() const { return this->dlmFemtoMtSimpleVs4VectorAverage; };
   DLM_Histo<float>* GetFemtoPhiVsRho() const { return this->dlmFemtoPhiVsRho; };
   DLM_Histo<float>* GetFemtoRhoVsMt() const { return this->dlmFemtoRhoVsMt; };
-  DLM_Histo<float>* GetFemtoKStarInTriplets() const { return this->dlmFemtoKStarInTriplets; };
-  DLM_Histo<float>* GetFemtoRStarInTriplets() const { return this->dlmFemtoRStarInTriplets; };
-  DLM_Histo<float>* GetFemtoRStarFemtoPairsInTripletsVsMt() const { return this->dlmFemtoRStarFemtoPairsInTripletsVsMt; };
   std::map<int, DLM_Histo<float>*> GetFemtoPairsMt() const { return this->dlmFemtoPairsMt; };
 
   unsigned Ghetto_NumMtBins;
@@ -447,20 +441,14 @@ unsigned GenerateEventTEMP();
   DLM_Histo<float>* dlmMtSimpleVs4VectorAverage; // Transverse mass of the triplet
   DLM_Histo<float>* dlmPhiVsRho; // 2D hist. with hyper-spherical coordinates
   DLM_Histo<float>* dlmRhoVsMt; // 2D hist. with hyper-spherical coordinates
-  DLM_Histo<float>* dlmKStarInTriplets; // 2D hist. with hyper-spherical coordinates
-  DLM_Histo<float>* dlmRStarInTriplets; // 2D hist. with r* of pairs in triplets
-  DLM_Histo<float>* dlmKStarInTripletsVsQ3; //
 
   // 3B femto histograms filled only for triplets in the femto region (Q3 < thr)
   DLM_Histo<float>* dlmFemtoPhiVsRho;
-  DLM_Histo<float>* dlmFemtoRStarInTriplets;
-  DLM_Histo<float>* dlmFemtoRStarFemtoPairsInTripletsVsMt;
   std::map<int, DLM_Histo<float>*> dlmFemtoPairsMt; // The integer represents the pair combination: 13 -> (part1, part3)
 
   DLM_Histo<float>* dlmFemtoR12R312;
   DLM_Histo<float>* dlmFemtoMtSimpleVs4VectorAverage;
   DLM_Histo<float>* dlmFemtoRhoVsMt;
-  DLM_Histo<float>* dlmFemtoKStarInTriplets;
 
   TLorentzVector p1;
   TLorentzVector p2;
