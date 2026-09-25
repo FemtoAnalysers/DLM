@@ -1391,8 +1391,8 @@ FragCorr = 1;
       */
 /////////////////////////////
 
-      auto clv1 = ((CatsLorentzVector *)Primary.at(0)->Cats());
-      auto clv2 = ((CatsLorentzVector *)Primary.at(1)->Cats());
+      auto clv1 = ((CatsLorentzVector *)Primary.at(pid[0])->Cats());
+      auto clv2 = ((CatsLorentzVector *)Primary.at(pid[1])->Cats());
 
       p1 = TLorentzVector(clv1->GetPx(), clv1->GetPy(), clv1->GetPz(), clv1->GetE());
       p2 = TLorentzVector(clv2->GetPx(), clv2->GetPy(), clv2->GetPz(), clv2->GetE());
@@ -1406,22 +1406,22 @@ FragCorr = 1;
       p2_mother = TLorentzVector(std::nan(""), std::nan(""), std::nan(""), std::nan(""));        
       p3_mother = TLorentzVector(std::nan(""), std::nan(""), std::nan(""), std::nan(""));
 
-      auto clv1_mother = ((CatsLorentzVector *)Primary.at(0)->Mother());
+      auto clv1_mother = ((CatsLorentzVector *)Primary.at(pid[0])->Mother());
       if(clv1_mother) {
         p1_mother = TLorentzVector(clv1_mother->GetPx(), clv1_mother->GetPy(), clv1_mother->GetPz(), clv1_mother->GetE());        
       }
       
-      auto clv2_mother = ((CatsLorentzVector *)Primary.at(1)->Mother());
+      auto clv2_mother = ((CatsLorentzVector *)Primary.at(pid[1])->Mother());
       if(clv2_mother) {
         p2_mother = TLorentzVector(clv2_mother->GetPx(), clv2_mother->GetPy(), clv2_mother->GetPz(), clv2_mother->GetE());        
       }
 
       if (SDIM == 3) {
-        auto clv3 = ((CatsLorentzVector *)Primary.at(2)->Cats());
+        auto clv3 = ((CatsLorentzVector *)Primary.at(pid[2])->Cats());
         p3 = TLorentzVector(clv3->GetPx(), clv3->GetPy(), clv3->GetPz(), clv3->GetE());
         x3 = TLorentzVector(clv3->GetX(), clv3->GetY(), clv3->GetZ(), clv3->GetT());
 
-        auto clv3_mother = ((CatsLorentzVector *)Primary.at(2)->Mother());
+        auto clv3_mother = ((CatsLorentzVector *)Primary.at(pid[2])->Mother());
         if(clv3_mother) {
           p3_mother = TLorentzVector(clv3_mother->GetPx(), clv3_mother->GetPy(), clv3_mother->GetPz(), clv3_mother->GetE());        
         }
