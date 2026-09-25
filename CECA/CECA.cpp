@@ -702,7 +702,8 @@ void CECA::SetEventMult(const unsigned short& emult){
   EMULT = emult;
 }
 void CECA::SetMtMethod(std::string method){
-  mTMethod = mTMethodFromString[method];
+  if (!mTMethodFromString.count(method)) LOG(FATAL, "Unknown mT method: " << method);
+  mTMethod = mTMethodFromString.at(method);
 }
 
 eMtMethod CECA::GetMtMethod(){
