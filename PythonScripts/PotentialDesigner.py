@@ -60,7 +60,7 @@ ROOT.gInterpreter.Declare(FIT_SCATTERING_PARS_CPP)
 
 #studyR = optuna.create_study(direction='minimize', sampler=optuna.samplers.RandomSampler())
 #orginal:
-studyT = optuna.create_study(direction='minimize', sampler=optuna.samplers.TPESampler(constant_liar=True))
+studyT = optuna.create_study(direction='minimize', sampler=optuna.samplers.TPESampler(multivariate=True, constant_liar=True))
 #suggest by chatGPT to broaden the search:
 #sampler = TPESampler(n_startup_trials=123, n_ei_candidates=100, multivariate=True, group=True)
 #studyT = optuna.create_study(sampler=sampler, direction="minimize")
@@ -715,7 +715,7 @@ def main():
                                     Progress_d = 1
                                 # print(f"Progress: f({Progress_f*100:.1f} %) = {Best_f:.3f} fm     d({Progress_d*100:.1f} %) = {Best_d:.3f} fm        ")
 
-                                print(f"f0: {Best_f:.4f}  d0: {Best_d:.4f} p1: {Best_par1:.4f}, p2: {Best_par2:.4f}, p3: {Best_par3:.4f}, p4: {Best_par4:.4f}")
+                                print(f"prog_f: {Progress_f*100:.1f}%  prog_d: {Progress_d*100:.1f}%  f0: {Best_f:.4f}  d0: {Best_d:.4f} p1: {Best_par1:.4f}, p2: {Best_par2:.4f}, p3: {Best_par3:.4f}, p4: {Best_par4:.4f}")
                                 
                             else:
                                 f_err_current = Estimator
