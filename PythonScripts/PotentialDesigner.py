@@ -135,7 +135,7 @@ def main():
     kMaxFit = 100
     PsMinErr = 1e-6
     kBin = 50
-    CPU = multiprocessing.cpu_count() / 2 - 1
+    CPU = multiprocessing.cpu_count()
     if CPU==0:
         CPU=1
     FIT_TIMEOUT = 1#in minutes
@@ -353,8 +353,6 @@ def main():
                 CPU = int(line_split[1])
                 if CPU<=0:
                     sys.exit("Error: CPU must be positive.")
-                if CPU>32:
-                    sys.exit("Error: CPU must be <= 32.")
             if line_split[0].lower()=='npars':
                 if len(line_split)!=2:
                     sys.exit('Wrong set up of nPars')
