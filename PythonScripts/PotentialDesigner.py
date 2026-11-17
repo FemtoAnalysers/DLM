@@ -151,7 +151,11 @@ def main():
         for line in file:
             single_line = line.strip()
             line_split = single_line.split()
-            #print(line_split)
+
+            # Skip empty lines
+            if not line_split:
+                continue
+
             if line_split[0].lower()=='f_goal':
                 if len(line_split)!=2:
                     sys.exit('Wrong set up of f_goal')
