@@ -18,6 +18,46 @@ script_name = script_dir.replace("/PythonScripts", "/install/bin/PotentialDesign
 
 FmToNu = 5.067731237e-3
 
+# C++ (JIT-compiled) copy of fit_scattering_pars, used by the TF1 fits.
+# A Python callback is called back into from Minuit at every evaluation, which is very slow.
+# Keep it identical to the Python version below.
+FIT_SCATTERING_PARS_CPP = r"""
+#include <cmath>
+double fit_scattering_pars_cpp(double* x, double* par){
+    const double FmToNu = 5.067731237e-3;
+    const double MOM = x[0];
+    const long Npars = std::lround(par[0]);
+    const double q1q2rm = par[1];
+    if(Npars==0) return 0;
+    double ERE = 0;
+    if(Npars>=1) ERE += 1./(par[2]*FmToNu);
+    if(Npars>=2) ERE += 0.5*MOM*MOM*par[3]*FmToNu;
+    for(long iPar=2; iPar<Npars; iPar++)
+        ERE += par[iPar+2] * std::pow(FmToNu, iPar*2-1) * std::pow(MOM, iPar*2);
+    if(q1q2rm!=0){
+        const double AlphaFS = 0.0072973525664;
+        const double EulerConst = 0.57721566490153;
+        const double Eta = AlphaFS*q1q2rm/MOM;
+        double hgam = -EulerConst - std::log(Eta);
+        const double PreFactor = (std::exp(2.*M_PI*Eta)-1.)/2.*M_PI*Eta;
+        const double AddFactor = -2.*MOM*Eta*hgam;
+        double precision = 1;
+        const double eps = 0.0001;
+        int nstep = 1;
+        while(precision>eps && nstep<32){
+            const double dh = Eta*Eta/(nstep*(nstep*nstep+Eta*Eta));
+            hgam += dh;
+            if(nstep>1) precision = std::fabs(dh/hgam);
+            nstep++;
+        }
+        ERE += AddFactor;
+        ERE *= PreFactor;
+    }
+    return std::atan(MOM/ERE);
+}
+"""
+ROOT.gInterpreter.Declare(FIT_SCATTERING_PARS_CPP)
+
 #studyR = optuna.create_study(direction='minimize', sampler=optuna.samplers.RandomSampler())
 #orginal:
 studyT = optuna.create_study(direction='minimize', sampler=optuna.samplers.TPESampler())
@@ -576,7 +616,7 @@ def main():
                         hPotential = root_file.Get("hPotential")
                         Estimator = 0.0
                         if PhaseShifts=='FIT_F0_D0_DIRECTLY':
-                            fit_ps_def = ROOT.TF1("fit_ps_def",fit_scattering_pars,kMin,kMaxFit,nPars+2)
+                            fit_ps_def = ROOT.TF1("fit_ps_def",ROOT.fit_scattering_pars_cpp,kMin,kMaxFit,nPars+2)
                             fit_ps_def.FixParameter(0,nPars)
                             fit_ps_def.FixParameter(1,q1q2*(M1*M2)/(M1+M2))
                             fit_ps_def.SetParameter(2,f_goal)
@@ -618,7 +658,7 @@ def main():
                             #BestTrial = TrialsCPU[iCPU]
                             for uMom in range(0,hPhaseShifts.GetNbinsX()):
                                 hPhaseShifts.SetBinError(uMom+1,0.001)
-                            fit_ps = ROOT.TF1("fit_ps",fit_scattering_pars,kMin,kMaxFit,nPars+2)
+                            fit_ps = ROOT.TF1("fit_ps",ROOT.fit_scattering_pars_cpp,kMin,kMaxFit,nPars+2)
                             fit_ps.FixParameter(0,nPars)
                             fit_ps.FixParameter(1,q1q2*(M1*M2)/(M1+M2))
                             if f_goal!=0:
@@ -670,7 +710,10 @@ def main():
                                     Progress_f = 1
                                 if Progress_d>1:
                                     Progress_d = 1
-                                print(f"Progress: f({Progress_f*100:.1f} %) = {Best_f:.3f} fm     d({Progress_d*100:.1f} %) = {Best_d:.3f} fm        ", end="\r")
+                                # print(f"Progress: f({Progress_f*100:.1f} %) = {Best_f:.3f} fm     d({Progress_d*100:.1f} %) = {Best_d:.3f} fm        ")
+
+                                print(f"f0: {Best_f:.4f}  d0: {Best_d:.4f} p1: {Best_par1:.4f}, p2: {Best_par2:.4f}, p3: {Best_par3:.4f}, p4: {Best_par4:.4f}")
+                                
                             else:
                                 f_err_current = Estimator
                                 d_err_current = Estimator
