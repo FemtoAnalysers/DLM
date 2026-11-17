@@ -9031,9 +9031,9 @@ bool GetScattParameters(CATS& Kitty, double& ScatLen, double& EffRan, TH1F*& hFi
   if(Fixd0) { fitSP2->FixParameter(2,EffRan);
               fitSP4->FixParameter(2,EffRan);
               fitSP6->FixParameter(2,EffRan);}
-  else {fitSP2->SetParameter(2,EffRan);fitSP2->SetParLimits(2,-50,50);
-        fitSP4->SetParameter(2,EffRan);fitSP4->SetParLimits(2,-50,50);
-        fitSP6->SetParameter(2,EffRan);fitSP6->SetParLimits(2,-50,50);}
+  else {fitSP2->SetParameter(2,EffRan);fitSP2->SetParLimits(2,-100,100);
+        fitSP4->SetParameter(2,EffRan);fitSP4->SetParLimits(2,-100,100);
+        fitSP6->SetParameter(2,EffRan);fitSP6->SetParLimits(2,-100,100);}
   fitSP4->SetParameter(3,0);fitSP6->SetParameter(3,0);
   fitSP6->SetParameter(4,0);
 
