@@ -60,7 +60,7 @@ ROOT.gInterpreter.Declare(FIT_SCATTERING_PARS_CPP)
 
 #studyR = optuna.create_study(direction='minimize', sampler=optuna.samplers.RandomSampler())
 #orginal:
-studyT = optuna.create_study(direction='minimize', sampler=optuna.samplers.TPESampler())
+studyT = optuna.create_study(direction='minimize', sampler=optuna.samplers.TPESampler(constant_liar=True))
 #suggest by chatGPT to broaden the search:
 #sampler = TPESampler(n_startup_trials=123, n_ei_candidates=100, multivariate=True, group=True)
 #studyT = optuna.create_study(sampler=sampler, direction="minimize")
@@ -127,7 +127,7 @@ def target_function(trial):
     return 0
 
 def run_script(args):
-    subprocess.Popen([script_name] + [args], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return subprocess.Popen([script_name] + [args], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 def parse_float_range(range_str):
     return [float(value) for value in range_str.split()]
@@ -536,26 +536,30 @@ def main():
 
         TotExeTime = 0
         StartTime = time.time()/60.
+        TrialsCPU = [None]*CPU
+        FilesIn = [None]*CPU
+        FilesOut = [None]*CPU
+        CurrentPar1 = [None]*CPU
+        CurrentPar2 = [None]*CPU
+        CurrentPar3 = [None]*CPU
+        CurrentPar4 = [None]*CPU
+        Procs = [None]*CPU
+        JobStart = [0]*CPU
         #we re-iterate until we reach our convergence criteria
         while (f_err_current>f_err or d_err_current>d_err) and TotExeTime<TIMEOUT:
-            TrialsCPU = []
-            FilesIn = []
-            FilesOut = []
-            CurrentPar1 = []
-            CurrentPar2 = []
-            CurrentPar3 = []
-            CurrentPar4 = []
             for iCPU in range(0,CPU):
+                if Procs[iCPU] is not None:
+                    continue
                 UniqueID += 1
                 fileBaseJob = BaseFileName+"_"+str(UniqueID)
                 fileNameIn = fileBaseJob+".fit"
                 fileNameOut = fileBaseJob+".root"
-                FilesIn.append(fileNameIn)
-                FilesOut.append(fileNameOut)
+                FilesIn[iCPU] = fileNameIn
+                FilesOut[iCPU] = fileNameOut
                 #EstimatorsCPU.append(0)
 
                 trial = studyT.ask()
-                TrialsCPU.append(trial)
+                TrialsCPU[iCPU] = trial
                 target_function(trial)
 
 
@@ -581,31 +585,30 @@ def main():
                     fjob.write( "v_par2     "+str(trial.params['v_par2'])+"\n")
                     fjob.write( "v_par3     "+str(trial.params['v_par3'])+"\n")
                     fjob.write( "v_par4     "+str(trial.params['v_par4'])+"\n")
-                    CurrentPar1.append(trial.params['v_par1'])
-                    CurrentPar2.append(trial.params['v_par2'])
-                    CurrentPar3.append(trial.params['v_par3'])
-                    CurrentPar4.append(trial.params['v_par4'])
+                    CurrentPar1[iCPU] = trial.params['v_par1']
+                    CurrentPar2[iCPU] = trial.params['v_par2']
+                    CurrentPar3[iCPU] = trial.params['v_par3']
+                    CurrentPar4[iCPU] = trial.params['v_par4']
 
-                run_script(fileBaseJob)
+                Procs[iCPU] = run_script(fileBaseJob)
+                JobStart[iCPU] = time.time()
             #for iCPU in range(0,CPU)
 
-            #wait for all jobs to finish
-            StartWaitTime = time.time()/60.
-            NumRunningJobs = CPU
-            while NumRunningJobs>0 and (time.time()/60.-StartWaitTime)<FIT_TIMEOUT:
-                NumRunningJobs = CPU
+            #wait until at least one job has finished, kill the jobs that take longer than FIT_TIMEOUT
+            while all(p.poll() is None for p in Procs):
+                time.sleep(0.02)
                 for iCPU in range(0,CPU):
-                    if os.path.exists(FilesOut[iCPU]):
-                        try:
-                            NumRunningJobs -= 1
-                            time.sleep(WakeUp*0.1)
-                        except OSError:
-                            time.sleep(WakeUp)
-            time.sleep(0.5)
-            if NumRunningJobs>0:
-                print('WARNING: Some jobs have failed')
+                    if Procs[iCPU].poll() is None and time.time()-JobStart[iCPU] > FIT_TIMEOUT*60.:
+                        print('WARNING: Some jobs have failed')
+                        Procs[iCPU].kill()
+                        Procs[iCPU].wait()
+                        if os.path.exists(FilesOut[iCPU]):
+                            os.remove(FilesOut[iCPU])
             #after all jobs are done, we collect the output
             for iCPU in range(0,CPU):
+                if Procs[iCPU] is None or Procs[iCPU].poll() is None:
+                    continue
+                Procs[iCPU] = None
                 if os.path.exists(FilesOut[iCPU]):
                     try:
                         root_file = ROOT.TFile.Open(FilesOut[iCPU])
